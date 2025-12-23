@@ -13,6 +13,26 @@ BeautyOps AI is a production-ready intelligent assistant designed to streamline 
 - **🎓 Training & Education Generator**: Generate scripts, selling points, and quizzes for product launches.
 - **📸 Content Creation Assistant**: Generate Instagram captions and TikTok scripts for events.
 - **📅 Task Management**: AI-prioritized task engine for daily follow-ups.
+- **💳 Tiered Monetization**: Built-in support for Solo, Pro, and Enterprise subscription tiers.
+
+---
+
+## 💰 Monetization & Business Model
+
+BeautyOps AI utilizes a **Value-Aligned Hybrid Model**:
+
+- **🟢 Solo AE ($49/mo)**: Unlimited visit reports, basic tasks, 10 POS analysis credits.
+- **🔵 Pro AE ($149/mo)**: Everything in Solo + Unlimited POS analysis, Training & Content generators, and a Team Dashboard.
+- **💎 Enterprise (Custom)**: SSO, direct CRM/ERP integrations, and custom-trained brand-voice LLMs.
+
+---
+
+## 🌎 Expansion Strategy
+
+The BeautyOps engine is designed as a **Verticalized SaaS (vSaaS)** platform, ready to pivot into:
+- **PharmaOps AI**: Focus on medical device training and clinical visit compliance.
+- **ShelfOps AI**: Focus on CPG shelf audits and large-scale retail execution.
+- **LuxuryOps AI**: Focus on high-end wholesale recap and content creation.
 
 ---
 
