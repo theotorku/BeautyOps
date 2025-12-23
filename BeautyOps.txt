@@ -1,0 +1,349 @@
+# 🌸 BeautyOps AI  
+### The AI Workflow Engine for Beauty Account Executives
+
+BeautyOps AI is an intelligent assistant designed to streamline the daily workflow of Beauty Account Executives (AEs). It automates store visit reporting, POS analysis, training preparation, event planning, and content creation — helping field teams save hours each week while improving sell‑through and operational consistency.
+
+---
+
+## ✨ Key Features
+
+### 📝 1. Store Visit → AI Report
+- Record or upload a voice note after a store visit  
+- Whisper transcribes the audio  
+- AI generates a structured report:
+  - Summary  
+  - Inventory issues  
+  - Training needs  
+  - Opportunities  
+  - Action items  
+- Auto‑generated follow‑up emails  
+- Tasks created automatically
+
+---
+
+### 📊 2. POS Data → Sales Insights
+- Upload POS spreadsheets (CSV/XLSX)  
+- AI identifies:
+  - Top sellers  
+  - Slow movers  
+  - Shade gaps  
+  - Week‑over‑week trends  
+  - Recommended actions  
+- Store‑specific insights for upcoming visits
+
+---
+
+### 🎓 3. Training & Education Generator
+- Select a product or upload a launch deck  
+- AI generates:
+  - 10‑minute training script  
+  - Key selling points  
+  - Objection handling  
+  - Shade matching guidance  
+  - BA quiz  
+  - Printable one‑pager
+
+---
+
+### 📸 4. Content Creation Assistant
+- Upload event photos or describe the event  
+- AI generates:
+  - Instagram captions  
+  - TikTok/Reels scripts  
+  - Event recap posts  
+  - Email updates  
+  - Hashtags & posting suggestions
+
+---
+
+### 🎤 5. Event Planning Workflow
+- Input event details (store, date, focus products)  
+- AI generates:
+  - Run‑of‑show  
+  - Checklist  
+  - Talking points  
+  - Follow‑up plan  
+- Post‑event recap generator
+
+---
+
+### 🤝 6. Relationship Management
+- AI tracks:
+  - Last store visit  
+  - Open issues  
+  - Upcoming events  
+- Daily “AI Priority List”:
+  - Follow‑ups  
+  - Store reminders  
+  - Tasks  
+- Lightweight CRM for AEs
+
+---
+
+### 🚀 7. Launch Prep Assistant
+- Upload launch decks (PDF/PPT)  
+- AI generates:
+  - 1‑page cheat sheet  
+  - FAQs  
+  - Competitive comparisons  
+  - Training script
+
+---
+
+## 🧱 System Architecture
+
+### **Frontend**
+- Next.js or Flutter Web  
+- Features:
+  - Auth UI  
+  - Dashboard  
+  - Audio recording  
+  - File uploads  
+  - Workflow triggers  
+  - History views  
+  - Task management  
+
+### **Backend (FastAPI + Python)**
+- REST endpoints:
+  - `/auth`  
+  - `/stores`  
+  - `/visits`  
+  - `/pos`  
+  - `/training`  
+  - `/events`  
+  - `/content`  
+  - `/tasks`  
+- Integrations:
+  - Whisper for transcription  
+  - LangChain for workflow orchestration  
+  - Supabase for storage + DB  
+
+### **AI Layer (LangChain)**
+Separate chains/agents:
+- `StoreVisitChain`  
+- `POSAnalysisChain`  
+- `TrainingScriptChain`  
+- `ContentCreationChain`  
+- `EventPlanningChain`  
+- `LaunchPrepChain`  
+- `RelationshipAssistantChain`  
+
+### **Storage**
+- Supabase Storage:
+  - Audio files  
+  - POS spreadsheets  
+  - Launch decks  
+  - Event photos  
+
+### **Database**
+- Supabase Postgres (schema below)
+
+---
+
+## 🗄️ Data Model (Supabase Schema)
+
+### `users`
+| Field | Type |
+|-------|------|
+| id | uuid (pk) |
+| email | text |
+| name | text |
+| role | text |
+| created_at | timestamp |
+
+### `stores`
+| Field | Type |
+|-------|------|
+| id | uuid |
+| user_id | uuid |
+| name | text |
+| retailer | text |
+| location | text |
+| region | text |
+| notes | text |
+| created_at | timestamp |
+
+### `store_visits`
+| Field | Type |
+|-------|------|
+| id | uuid |
+| user_id | uuid |
+| store_id | uuid |
+| visit_date | date |
+| raw_transcript | text |
+| summary | text |
+| issues | jsonb |
+| opportunities | jsonb |
+| action_items | jsonb |
+| audio_file_url | text |
+| created_at | timestamp |
+
+### `pos_reports`
+| Field | Type |
+|-------|------|
+| id | uuid |
+| user_id | uuid |
+| store_id | uuid |
+| period_start | date |
+| period_end | date |
+| raw_file_url | text |
+| summary | text |
+| top_sellers | jsonb |
+| slow_movers | jsonb |
+| recommendations | jsonb |
+| created_at | timestamp |
+
+### `training_sessions`
+| Field | Type |
+|-------|------|
+| id | uuid |
+| user_id | uuid |
+| store_id | uuid |
+| product_id | uuid |
+| title | text |
+| script | text |
+| key_points | jsonb |
+| objections_and_answers | jsonb |
+| quiz | jsonb |
+| one_pager_url | text |
+| created_at | timestamp |
+
+### `events`
+| Field | Type |
+|-------|------|
+| id | uuid |
+| user_id | uuid |
+| store_id | uuid |
+| name | text |
+| event_date | date |
+| type | text |
+| focus_products | jsonb |
+| run_of_show | text |
+| checklist | jsonb |
+| follow_up_plan | text |
+| photos_folder_url | text |
+| created_at | timestamp |
+
+### `content_items`
+| Field | Type |
+|-------|------|
+| id | uuid |
+| user_id | uuid |
+| related_event_id | uuid |
+| type | text |
+| title | text |
+| body | text |
+| hashtags | text[] |
+| created_at | timestamp |
+
+### `tasks`
+| Field | Type |
+|-------|------|
+| id | uuid |
+| user_id | uuid |
+| store_id | uuid |
+| source_type | text |
+| source_id | uuid |
+| title | text |
+| description | text |
+| due_date | date |
+| status | text |
+| created_at | timestamp |
+
+### `generated_outputs`
+| Field | Type |
+|-------|------|
+| id | uuid |
+| user_id | uuid |
+| workflow_type | text |
+| input_context | jsonb |
+| output_text | text |
+| output_json | jsonb |
+| created_at | timestamp |
+
+---
+
+## 🧭 Feature Roadmap
+
+### **Phase 0 — Internal Prototype (1–3 days)**
+- Auth  
+- Store list  
+- Upload audio → transcript → AI report  
+- Minimal UI (Streamlit or Next.js)
+
+### **Phase 1 — MVP (1–3 weeks)**
+- Full store visit workflow  
+- POS upload + analysis  
+- Training script generator  
+- Tasks dashboard  
+- Clean UI  
+
+### **Phase 2 — Polished v1 (1–2 months)**
+- Event planning workflow  
+- Content creation workflow  
+- Relationship assistant  
+- Launch prep assistant  
+- Better analytics + history views  
+
+### **Phase 3 — Multi‑Tenant SaaS (3–6 months)**
+- Brand → AE → Store hierarchy  
+- Team dashboards  
+- White‑labeling  
+- Stripe billing  
+- Enterprise features  
+
+---
+
+## 💰 Monetization Strategy
+
+### **Solo AE Plan — $29/mo**
+- Limited POS uploads  
+- Unlimited store visit reports  
+- Training + content generation  
+
+### **Pro AE Plan — $79/mo**
+- Unlimited workflows  
+- Event planning  
+- Relationship assistant  
+- Priority support  
+
+### **Team Plan — $199–$299/mo**
+- Up to 10 AEs  
+- Team dashboards  
+- Shared templates  
+
+### **Enterprise Plan — $1,500–$5,000/mo**
+- Unlimited AEs  
+- Custom workflows  
+- Brand‑approved templates  
+- SSO  
+- Dedicated support  
+
+---
+
+## 📈 ROI Summary (for Sales Conversations)
+
+A typical AE saves:
+
+- **30–40 hours/month**  
+- **$1,200–$1,800/month in productivity**  
+- **+2% sell‑through lift** (~$1,000/month)
+
+**Total value: ~$2,500/month**  
+**Cost: $79/month**  
+**ROI: 30× return**
+
+---
+
+## 🛠️ Local Development Setup
+
+### **Requirements**
+- Python 3.10+  
+- Node.js 18+ (if using Next.js)  
+- Supabase project  
+- OpenAI API key  
+- LangChain  
+
+### **Backend Setup**
+```bash
+pip install fastapi uvicorn langchain openai python-dotenv supabase
