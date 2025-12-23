@@ -8,7 +8,7 @@ export default function PricingPage() {
                 'Unlimited Store Visit Reports',
                 'Basic Task Management',
                 '10 AI POS Analysis Credits/mo',
-                'Standard Templates'
+                'Basic Calendar Sync (Personal)'
             ],
             button: 'Current Plan',
             current: true
@@ -20,9 +20,10 @@ export default function PricingPage() {
             features: [
                 'Everything in Solo',
                 'Unlimited AI POS Analysis',
+                'Proactive AI Briefing Engine',
+                'Smart Calendar Time-Blocking',
                 'Training & Content Generators',
-                'Team Collaboration Dashboard',
-                'Relationship Assistant'
+                'Team Collaboration Dashboard'
             ],
             button: 'Upgrade to Pro',
             current: false,
@@ -36,8 +37,9 @@ export default function PricingPage() {
                 'Everything in Pro',
                 'SSO & Advanced Security',
                 'Direct CRM/SAP Integration',
-                'Custom Brand-Voice LLM',
-                'Dedicated Success Manager'
+                'AI Vision Competitive Insight',
+                'Full Calendar Ecosystem Sync',
+                'Custom Brand-Voice LLM'
             ],
             button: 'Contact Sales',
             current: false

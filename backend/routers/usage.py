@@ -7,15 +7,19 @@ router = APIRouter()
 
 class UsageStats(BaseModel):
     tier: str
-    credits_used: int
-    credits_limit: int
+    pos_credits_used: int
+    pos_credits_limit: int
+    briefings_used: int
+    briefings_limit: int
 
 # Mock data for demonstration
 MOCK_USAGE = {
     "user_123": {
         "tier": "Solo AE",
-        "credits_used": 7,
-        "credits_limit": 10
+        "pos_credits_used": 7,
+        "pos_credits_limit": 10,
+        "briefings_used": 4,
+        "briefings_limit": 5
     }
 }
 

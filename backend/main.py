@@ -16,7 +16,7 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
-from routers import visits, pos, extra_features, usage
+from routers import visits, pos, extra_features, usage, calendar, vision
 
 app = FastAPI(title=settings.app_name)
 
@@ -32,6 +32,8 @@ app.include_router(visits.router, prefix="/api/visits", tags=["Visits"])
 app.include_router(pos.router, prefix="/api/pos", tags=["POS"])
 app.include_router(extra_features.router, prefix="/api/features", tags=["ExtraFeatures"])
 app.include_router(usage.router, prefix="/api/usage", tags=["Usage"])
+app.include_router(calendar.router, prefix="/api/calendar", tags=["Calendar"])
+app.include_router(vision.router, prefix="/api/vision", tags=["Vision"])
 
 @app.get("/")
 async def root():

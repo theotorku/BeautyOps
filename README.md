@@ -21,9 +21,9 @@ BeautyOps AI is a production-ready intelligent assistant designed to streamline 
 
 BeautyOps AI utilizes a **Value-Aligned Hybrid Model**:
 
-- **🟢 Solo AE ($49/mo)**: Unlimited visit reports, basic tasks, 10 POS analysis credits.
-- **🔵 Pro AE ($149/mo)**: Everything in Solo + Unlimited POS analysis, Training & Content generators, and a Team Dashboard.
-- **💎 Enterprise (Custom)**: SSO, direct CRM/ERP integrations, and custom-trained brand-voice LLMs.
+- **🟢 Solo AE ($49/mo)**: Unlimited visit reports, basic tasks, 10 POS analysis credits, and basic Calendar Sync.
+- **🔵 Pro AE ($149/mo)**: Everything in Solo + Unlimited POS analysis, Training & Content generators, **Proactive AI Briefing Engine**, and Smart Calendar Time-Blocking.
+- **💎 Enterprise (Custom)**: SSO, direct CRM/ERP/Calendar ecosystem integrations, **AI Vision Competitive Snapshot**, and custom-trained brand-voice LLMs.
 
 ---
 

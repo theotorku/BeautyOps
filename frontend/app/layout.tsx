@@ -23,6 +23,7 @@ export default function RootLayout({
               <a href="/pos" className="nav-item">POS Analysis</a>
               <a href="/training" className="nav-item">Training</a>
               <a href="/tasks" className="nav-item">Tasks</a>
+              <a href="/integrations" className="nav-item">Integrations</a>
               <div style={{ borderTop: '1px solid var(--glass-border)', margin: '0.5rem 0' }}></div>
               <a href="/pricing" className="nav-item">Plans & Billing</a>
             </nav>
