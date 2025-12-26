@@ -1,14 +1,14 @@
-'use client';
-
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { createClient } from '@/lib/supabase/server';
+import { logout } from '@/app/auth/actions';
 
-export default function AppLayout({
+export default async function AppLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
-    const pathname = usePathname();
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
     const navItems = [
         { href: '/dashboard', icon: '🏠', label: 'Dashboard' },
@@ -27,7 +27,7 @@ export default function AppLayout({
                         <Link
                             key={item.href}
                             href={item.href}
-                            className={`nav-item ${pathname === item.href ? 'active' : ''}`}
+                            className="nav-item"
                         >
                             <span>{item.icon}</span> {item.label}
                         </Link>
@@ -47,6 +47,21 @@ export default function AppLayout({
                         </Link>
                     </div>
                 </nav>
+
+                {/* User Menu */}
+                <div className="user-menu">
+                    <div className="user-info">
+                        <div className="user-avatar">
+                            {user?.email?.charAt(0).toUpperCase() || 'U'}
+                        </div>
+                        <span className="user-email">{user?.email || 'User'}</span>
+                    </div>
+                    <form action={logout}>
+                        <button type="submit" className="logout-btn">
+                            Sign Out
+                        </button>
+                    </form>
+                </div>
             </aside>
             <main className="main-content">
                 {children}

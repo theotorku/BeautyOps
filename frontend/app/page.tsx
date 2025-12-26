@@ -38,7 +38,7 @@ export default function LandingPage() {
           Automate reports, analyze POS data, and prep for store visits — all in one platform.
         </p>
         <div className="hero-cta">
-          <Link href="/dashboard" className="btn-primary">Start Free Trial</Link>
+          <Link href="/signup" className="btn-primary">Start Free Trial</Link>
           <a href="#features" className="btn-secondary">See How It Works</a>
         </div>
         <div className="hero-stats">
@@ -150,7 +150,7 @@ export default function LandingPage() {
               <li>✓ Basic task management</li>
               <li>✓ Email support</li>
             </ul>
-            <Link href="/dashboard" className="btn-secondary">Start Free Trial</Link>
+            <Link href="/signup" className="btn-secondary">Start Free Trial</Link>
           </div>
           <div className="pricing-card popular">
             <div className="pricing-badge">Most Popular</div>
@@ -163,7 +163,7 @@ export default function LandingPage() {
               <li>✓ Proactive AI Briefings</li>
               <li>✓ Priority support</li>
             </ul>
-            <Link href="/dashboard" className="btn-primary">Start Free Trial</Link>
+            <Link href="/signup" className="btn-primary">Start Free Trial</Link>
           </div>
           <div className="pricing-card">
             <div className="pricing-tier">Enterprise</div>
@@ -202,7 +202,7 @@ export default function LandingPage() {
       <section className="footer-cta">
         <h2>Ready to Transform Your Workflow?</h2>
         <p>Join 500+ Beauty AEs who are saving 4+ hours every week.</p>
-        <Link href="/dashboard" className="btn-primary btn-large">Start Your Free Trial →</Link>
+        <Link href="/signup" className="btn-primary btn-large">Start Your Free Trial →</Link>
       </section>
 
       {/* Footer */}
