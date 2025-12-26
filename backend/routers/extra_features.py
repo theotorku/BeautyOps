@@ -6,16 +6,22 @@ import os
 
 router = APIRouter()
 
+class TrainingRequest(BaseModel):
+    product_info: str
+
 @router.post("/generate-training")
-async def generate_training(product_info: str):
+async def generate_training(request: TrainingRequest):
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key: raise HTTPException(status_code=500, detail="API Key not configured")
     chain = TrainingScriptChain(api_key)
-    return await chain.run(product_info)
+    return await chain.run(request.product_info)
+
+class ContentRequest(BaseModel):
+    event_details: str
 
 @router.post("/generate-content")
-async def generate_content(event_details: str):
+async def generate_content(request: ContentRequest):
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key: raise HTTPException(status_code=500, detail="API Key not configured")
     chain = ContentCreationChain(api_key)
-    return await chain.run(event_details)
+    return await chain.run(request.event_details)

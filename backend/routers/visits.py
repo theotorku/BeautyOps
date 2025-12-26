@@ -14,15 +14,18 @@ class VisitResponse(BaseModel):
     action_items: List[str]
     follow_up_email: str
 
+class VisitRequest(BaseModel):
+    transcript: str
+
 @router.post("/process-transcript", response_model=VisitResponse)
-async def process_transcript(transcript: str):
+async def process_transcript(request: VisitRequest):
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
         raise HTTPException(status_code=500, detail="OpenAI API Key not configured")
     
     chain = StoreVisitChain(api_key)
     try:
-        result = await chain.run(transcript)
+        result = await chain.run(request.transcript)
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

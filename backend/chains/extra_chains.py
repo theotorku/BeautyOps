@@ -1,19 +1,20 @@
 from langchain_openai import ChatOpenAI
-from langchain.prompts import ChatPromptTemplate
-from langchain.output_parsers import ResponseSchema, StructuredOutputParser
-from typing import Dict, Any
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import PydanticOutputParser
+from pydantic import BaseModel, Field
+from typing import Dict, Any, List
+
+class TrainingScript(BaseModel):
+    script: str = Field(description="A 10-minute training script for Beauty Advisors")
+    key_selling_points: List[str] = Field(description="Top 3-5 selling points")
+    objection_handling: List[str] = Field(description="Common objections and how to handle them")
+    quiz: List[str] = Field(description="3-5 question quiz for BAs")
+    one_pager_content: str = Field(description="Text for a printable one-pager")
 
 class TrainingScriptChain:
     def __init__(self, api_key: str):
         self.llm = ChatOpenAI(api_key=api_key, model="gpt-4o")
-        self.response_schemas = [
-            ResponseSchema(name="script", description="A 10-minute training script for Beauty Advisors"),
-            ResponseSchema(name="key_selling_points", description="Top 3-5 selling points"),
-            ResponseSchema(name="objection_handling", description="Common objections and how to handle them"),
-            ResponseSchema(name="quiz", description="3-5 question quiz for BAs"),
-            ResponseSchema(name="one_pager_content", description="Text for a printable one-pager")
-        ]
-        self.output_parser = StructuredOutputParser.from_response_schemas(self.response_schemas)
+        self.output_parser = PydanticOutputParser(pydantic_object=TrainingScript)
 
     async def run(self, product_info: str) -> Dict[str, Any]:
         format_instructions = self.output_parser.get_format_instructions()
@@ -25,16 +26,16 @@ class TrainingScriptChain:
         chain = prompt | self.llm | self.output_parser
         return await chain.ainvoke({"product_info": product_info, "format_instructions": format_instructions})
 
+class ContentCreationPlan(BaseModel):
+    instagram_caption: str = Field(description="Engaging IG caption with hashtags")
+    tiktok_script: str = Field(description="Short, punchy script for TikTok/Reels")
+    event_recap_email: str = Field(description="Email update for the team")
+    hashtags: List[str] = Field(description="Strategic list of hashtags")
+
 class ContentCreationChain:
     def __init__(self, api_key: str):
         self.llm = ChatOpenAI(api_key=api_key, model="gpt-4o")
-        self.response_schemas = [
-            ResponseSchema(name="instagram_caption", description="Engaging IG caption with hashtags"),
-            ResponseSchema(name="tiktok_script", description="Short, punchy script for TikTok/Reels"),
-            ResponseSchema(name="event_recap_email", description="Email update for the team"),
-            ResponseSchema(name="hashtags", description="Strategic list of hashtags")
-        ]
-        self.output_parser = StructuredOutputParser.from_response_schemas(self.response_schemas)
+        self.output_parser = PydanticOutputParser(pydantic_object=ContentCreationPlan)
 
     async def run(self, event_details: str) -> Dict[str, Any]:
         format_instructions = self.output_parser.get_format_instructions()

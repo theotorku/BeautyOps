@@ -38,10 +38,30 @@ The BeautyOps engine is designed as a **Verticalized SaaS (vSaaS)** platform, re
 
 ## 🧱 System Architecture
 
-- **Frontend**: Next.js 15 with a premium, glassmorphic dark-themed UI.
-- **Backend**: FastAPI + LangChain for AI orchestration.
+- **Frontend**: Next.js 16.1.1 with a premium, glassmorphic dark-themed UI.
+- **Backend**: FastAPI + LangChain 1.2.0 for AI orchestration.
 - **Database/Auth**: Supabase integration.
 - **AI Layer**: OpenAI GPT-4o and Whisper for transcription.
+
+---
+
+## 🆕 Recent Updates (Dec 2025)
+
+### LangChain 1.2.0 Migration
+- Refactored AI chains to use `PydanticOutputParser` with Pydantic v2 models
+- Updated imports to use `langchain_core` namespace
+- Fixed dependency issues (`jsonpatch`, `python-multipart`)
+
+### API Standardization
+- All POST endpoints now use Pydantic models for request bodies
+- Standardized frontend-backend communication with typed JSON contracts
+
+### Dashboard Improvements
+- All Quick Action buttons are now functional with proper navigation:
+  - **Record Store Visit** → `/visits`
+  - **Upload POS Data** → `/pos`
+  - **Competitive Snapshot** → `/integrations`
+  - **Open Strategic Brief** → `/visits`
 
 ---
 
@@ -72,7 +92,7 @@ The BeautyOps engine is designed as a **Verticalized SaaS (vSaaS)** platform, re
    ```
 4. Run the API:
    ```bash
-   uv run uvicorn main:app --reload
+   uv run --link-mode=copy uvicorn main:app --reload
    ```
 
 ### Frontend Setup
@@ -97,11 +117,17 @@ The BeautyOps engine is designed as a **Verticalized SaaS (vSaaS)** platform, re
 ```text
 BeautyOps AI/
 ├── backend/                # FastAPI Application
-│   ├── chains/             # LangChain AI Orchesration
-│   ├── routers/            # API Endpoints
+│   ├── chains/             # LangChain AI Orchestration (Pydantic v2)
+│   ├── routers/            # API Endpoints with typed request models
+│   ├── services/           # Business logic services
 │   └── main.py             # Entry Point
-└── frontend/               # Next.js Application
+└── frontend/               # Next.js 16 Application
     ├── app/                # App Router Pages
+    │   ├── visits/         # Store Visit Intelligence
+    │   ├── pos/            # POS Analysis
+    │   ├── training/       # Training Generator
+    │   ├── integrations/   # Ecosystem Integrations
+    │   └── pricing/        # Plans & Billing
     └── globals.css         # Premium Design System
 ```
 
@@ -112,3 +138,9 @@ BeautyOps AI/
 The project is structured to be deployed on platforms like Vercel (frontend) and Render/Railway (backend).
 
 **GitHub Repository**: [https://github.com/theotorku/BeautyOps.git](https://github.com/theotorku/BeautyOps.git)
+
+---
+
+## 📄 License
+
+MIT License - See LICENSE file for details.

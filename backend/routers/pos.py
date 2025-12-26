@@ -10,7 +10,7 @@ class POSResponse(BaseModel):
     top_sellers: List[str]
     slow_movers: List[str]
     shade_gaps: List[str]
-    trends: str
+    trends: List[str]
     recommendations: List[str]
 
 @router.post("/analyze", response_model=POSResponse)

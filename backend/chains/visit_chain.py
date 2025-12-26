@@ -1,22 +1,21 @@
 from langchain_openai import ChatOpenAI
-from langchain.prompts import ChatPromptTemplate
-from langchain.output_parsers import ResponseSchema, StructuredOutputParser
-from typing import Dict, Any
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import PydanticOutputParser
+from pydantic import BaseModel, Field
+from typing import Dict, Any, List
+
+class StoreVisitReport(BaseModel):
+    summary: str = Field(description="Concise summary of the store visit")
+    inventory_issues: List[str] = Field(description="List of inventory issues found")
+    training_needs: List[str] = Field(description="Specific training needs for the beauty advisors")
+    opportunities: List[str] = Field(description="Growth opportunities identified")
+    action_items: List[str] = Field(description="List of follow-up tasks")
+    follow_up_email: str = Field(description="A draft email to the store manager")
 
 class StoreVisitChain:
     def __init__(self, api_key: str):
         self.llm = ChatOpenAI(api_key=api_key, model="gpt-4o")
-        
-        # Define the structure of the AI report
-        self.response_schemas = [
-            ResponseSchema(name="summary", description="Concise summary of the store visit"),
-            ResponseSchema(name="inventory_issues", description="List of inventory issues found"),
-            ResponseSchema(name="training_needs", description="Specific training needs for the beauty advisors"),
-            ResponseSchema(name="opportunities", description="Growth opportunities identified"),
-            ResponseSchema(name="action_items", description="List of follow-up tasks"),
-            ResponseSchema(name="follow_up_email", description="A draft email to the store manager")
-        ]
-        self.output_parser = StructuredOutputParser.from_response_schemas(self.response_schemas)
+        self.output_parser = PydanticOutputParser(pydantic_object=StoreVisitReport)
 
     async def run(self, transcript: str) -> Dict[str, Any]:
         format_instructions = self.output_parser.get_format_instructions()

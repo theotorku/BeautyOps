@@ -1,21 +1,22 @@
 from langchain_openai import ChatOpenAI
-from langchain.prompts import ChatPromptTemplate
-from langchain.output_parsers import ResponseSchema, StructuredOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import PydanticOutputParser
+from pydantic import BaseModel, Field
 import pandas as pd
 from typing import Dict, Any, List
 import io
 
+class POSAnalysisReport(BaseModel):
+    top_sellers: List[str] = Field(description="List of top selling products")
+    slow_movers: List[str] = Field(description="List of slow moving products")
+    shade_gaps: List[str] = Field(description="Identification of missing or low-stock shades")
+    trends: List[str] = Field(description="Week-over-week or monthly trends observed")
+    recommendations: List[str] = Field(description="Strategic recommendations for the store")
+
 class POSAnalysisChain:
     def __init__(self, api_key: str):
         self.llm = ChatOpenAI(api_key=api_key, model="gpt-4o")
-        self.response_schemas = [
-            ResponseSchema(name="top_sellers", description="List of top selling products"),
-            ResponseSchema(name="slow_movers", description="List of slow moving products"),
-            ResponseSchema(name="shade_gaps", description="Identification of missing or low-stock shades"),
-            ResponseSchema(name="trends", description="Week-over-week or monthly trends observed"),
-            ResponseSchema(name="recommendations", description="Strategic recommendations for the store")
-        ]
-        self.output_parser = StructuredOutputParser.from_response_schemas(self.response_schemas)
+        self.output_parser = PydanticOutputParser(pydantic_object=POSAnalysisReport)
 
     async def run(self, data_summary: str) -> Dict[str, Any]:
         format_instructions = self.output_parser.get_format_instructions()

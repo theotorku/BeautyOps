@@ -66,7 +66,9 @@ export default function POSAnalysis() {
                     </div>
                     <div className="card" style={{ gridColumn: '1 / -1' }}>
                         <h3 style={{ color: 'var(--primary)', marginBottom: '1rem' }}>Market Trends</h3>
-                        <p style={{ opacity: 0.8 }}>{analysis.trends}</p>
+                        <ul style={{ paddingLeft: '1.2rem', opacity: 0.8 }}>
+                            {analysis.trends.map((item: string, i: number) => <li key={i}>{item}</li>)}
+                        </ul>
                     </div>
                 </div>
             )}
