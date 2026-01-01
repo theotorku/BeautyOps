@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { API_URL } from '@/lib/config';
 
 export default function POSAnalysis() {
     const [file, setFile] = useState<File | null>(null);
@@ -14,7 +15,7 @@ export default function POSAnalysis() {
         formData.append('file', file);
 
         try {
-            const res = await fetch('http://localhost:8000/api/pos/analyze', {
+            const res = await fetch(`${API_URL}/api/pos/analyze`, {
                 method: 'POST',
                 body: formData,
             });

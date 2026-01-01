@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { API_URL } from '@/lib/config';
 
 export default function StoreVisits() {
     const [transcript, setTranscript] = useState('');
@@ -10,7 +11,7 @@ export default function StoreVisits() {
     const handleProcess = async () => {
         setLoading(true);
         try {
-            const res = await fetch('http://localhost:8000/api/visits/process-transcript', {
+            const res = await fetch(`${API_URL}/api/visits/process-transcript`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ transcript })

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { API_URL } from '@/lib/config';
 
 export default function TrainingGenerator() {
     const [productInfo, setProductInfo] = useState('');
@@ -10,7 +11,7 @@ export default function TrainingGenerator() {
     const handleGenerate = async () => {
         setLoading(true);
         try {
-            const res = await fetch('http://localhost:8000/api/features/generate-training', {
+            const res = await fetch(`${API_URL}/api/features/generate-training`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ product_info: productInfo })
