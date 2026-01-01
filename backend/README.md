@@ -30,6 +30,7 @@ BeautyOps AI utilizes a **Value-Aligned Hybrid Model**:
 ## 🌎 Expansion Strategy
 
 The BeautyOps engine is designed as a **Verticalized SaaS (vSaaS)** platform, ready to pivot into:
+
 - **PharmaOps AI**: Focus on medical device training and clinical visit compliance.
 - **ShelfOps AI**: Focus on CPG shelf audits and large-scale retail execution.
 - **LuxuryOps AI**: Focus on high-end wholesale recap and content creation.
@@ -48,20 +49,30 @@ The BeautyOps engine is designed as a **Verticalized SaaS (vSaaS)** platform, re
 ## 🆕 Recent Updates (Dec 2025)
 
 ### LangChain 1.2.0 Migration
+
 - Refactored AI chains to use `PydanticOutputParser` with Pydantic v2 models
 - Updated imports to use `langchain_core` namespace
 - Fixed dependency issues (`jsonpatch`, `python-multipart`)
 
 ### API Standardization
+
 - All POST endpoints now use Pydantic models for request bodies
 - Standardized frontend-backend communication with typed JSON contracts
 
 ### Dashboard Improvements
+
 - All Quick Action buttons are now functional with proper navigation:
   - **Record Store Visit** → `/visits`
   - **Upload POS Data** → `/pos`
   - **Competitive Snapshot** → `/integrations`
   - **Open Strategic Brief** → `/visits`
+
+### Authentication & Landing Page (new)
+
+- **Supabase Auth**: Complete email/password login & signup flow.
+- **Route Groups**: Separated public landing page (`/`) from authenticated dashboard (`app` directory).
+- **Middleware**: Protected routes redirect unauthenticated users to `/login`.
+- **Landing Page**: High-converting public page with lead magnet and pricing tiers.
 
 ---
 

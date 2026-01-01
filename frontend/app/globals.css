@@ -320,7 +320,7 @@ textarea:focus {
   font-size: 1.25rem;
   opacity: 0.7;
   max-width: 600px;
-  margin: 0 auto 2.5rem;
+  margin: 0 auto 1.5rem;
   line-height: 1.7;
 }
 
@@ -328,7 +328,7 @@ textarea:focus {
   display: flex;
   gap: 1rem;
   justify-content: center;
-  margin-bottom: 4rem;
+  margin-bottom: 2.5rem;
 }
 
 .btn-primary {
@@ -395,7 +395,7 @@ textarea:focus {
 
 /* Pain Points Section */
 .pain-points {
-  padding: 6rem 4rem;
+  padding: 4rem 2rem;
   background: var(--secondary);
 }
 
@@ -419,7 +419,7 @@ textarea:focus {
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 2rem;
   max-width: 1200px;
-  margin: 3rem auto 0;
+  margin: 2rem auto 0;
 }
 
 .pain-card {
@@ -454,7 +454,7 @@ textarea:focus {
 
 /* Features Section */
 .features {
-  padding: 6rem 4rem;
+  padding: 4rem 2rem;
 }
 
 .features-grid {
@@ -500,7 +500,7 @@ textarea:focus {
 
 /* How It Works */
 .how-it-works {
-  padding: 6rem 4rem;
+  padding: 4rem 2rem;
   background: var(--secondary);
 }
 
@@ -510,7 +510,7 @@ textarea:focus {
   align-items: center;
   gap: 2rem;
   max-width: 1000px;
-  margin: 3rem auto 0;
+  margin: 2rem auto 0;
   flex-wrap: wrap;
 }
 
@@ -550,7 +550,7 @@ textarea:focus {
 
 /* Pricing Section */
 .pricing {
-  padding: 6rem 4rem;
+  padding: 4rem 2rem;
 }
 
 .pricing-grid {
@@ -626,7 +626,7 @@ textarea:focus {
 
 /* Lead Magnet */
 .lead-magnet {
-  padding: 6rem 4rem;
+  padding: 4rem 2rem;
   background: linear-gradient(135deg, rgba(192, 132, 252, 0.1) 0%, rgba(229, 185, 196, 0.1) 100%);
   border-top: 1px solid var(--glass-border);
   border-bottom: 1px solid var(--glass-border);
@@ -660,7 +660,7 @@ textarea:focus {
 
 /* Footer CTA */
 .footer-cta {
-  padding: 6rem 4rem;
+  padding: 4rem 2rem;
   text-align: center;
 }
 
@@ -677,7 +677,7 @@ textarea:focus {
 /* Footer */
 .landing-footer {
   background: var(--secondary);
-  padding: 3rem 4rem 2rem;
+  padding: 2rem 2rem 1.5rem;
   border-top: 1px solid var(--glass-border);
 }
 
