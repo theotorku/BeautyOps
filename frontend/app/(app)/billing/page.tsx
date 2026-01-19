@@ -100,7 +100,8 @@ export default function BillingPage() {
                 'Basic Proactive Briefings',
                 '10 AI POS Analysis Credits/mo',
                 'Basic Calendar Sync'
-            ]
+            ],
+            popular: false
         },
         pro: {
             name: 'Pro AE',
