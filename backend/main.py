@@ -16,13 +16,21 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
-from routers import visits, pos, extra_features, usage, calendar, vision
+from routers import visits, pos, extra_features, usage, calendar, vision, billing
 
 app = FastAPI(title=settings.app_name)
 
+# CORS Configuration
+frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
+allowed_origins = [
+    "http://localhost:3000",
+    "https://beauty-ops.vercel.app",
+    frontend_url
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -34,6 +42,7 @@ app.include_router(extra_features.router, prefix="/api/features", tags=["ExtraFe
 app.include_router(usage.router, prefix="/api/usage", tags=["Usage"])
 app.include_router(calendar.router, prefix="/api/calendar", tags=["Calendar"])
 app.include_router(vision.router, prefix="/api/vision", tags=["Vision"])
+app.include_router(billing.router, prefix="/api/billing", tags=["Billing"])
 
 @app.get("/")
 async def root():

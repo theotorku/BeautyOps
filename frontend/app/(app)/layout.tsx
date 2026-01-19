@@ -16,6 +16,7 @@ export default async function AppLayout({
         { href: '/pos', icon: '📊', label: 'POS Analysis' },
         { href: '/training', icon: '📖', label: 'Training' },
         { href: '/integrations', icon: '🔗', label: 'Integrations' },
+        { href: '/billing', icon: '💳', label: 'Billing' },
     ];
 
     return (
@@ -43,7 +44,7 @@ export default async function AppLayout({
                                 border: '1px solid var(--glass-border)'
                             }}
                         >
-                            <span>✨</span> Plans & Billing
+                            <span>✨</span> Pricing Plans
                         </Link>
                     </div>
                 </nav>
