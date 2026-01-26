@@ -57,6 +57,7 @@ class StripeService:
             success_url=success_url,
             cancel_url=cancel_url,
             subscription_data={
+                "trial_period_days": 14,  # 14-day free trial
                 "metadata": {"user_id": user_id}
             },
             metadata={"user_id": user_id}
