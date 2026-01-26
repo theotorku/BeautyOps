@@ -16,7 +16,7 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
-from routers import visits, pos, extra_features, usage, calendar, vision, billing
+from routers import visits, pos, extra_features, usage, calendar, vision, billing, leads
 
 app = FastAPI(title=settings.app_name)
 
@@ -43,6 +43,7 @@ app.include_router(usage.router, prefix="/api/usage", tags=["Usage"])
 app.include_router(calendar.router, prefix="/api/calendar", tags=["Calendar"])
 app.include_router(vision.router, prefix="/api/vision", tags=["Vision"])
 app.include_router(billing.router, prefix="/api/billing", tags=["Billing"])
+app.include_router(leads.router, prefix="/api/leads", tags=["Leads"])
 
 @app.get("/")
 async def root():

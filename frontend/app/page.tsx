@@ -2,15 +2,51 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import toast from 'react-hot-toast';
+import { API_URL } from '@/lib/config';
 
 export default function LandingPage() {
   const [email, setEmail] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Integrate with email service
-    alert(`Thanks! We'll send the template to ${email}`);
-    setEmail('');
+
+    if (!email) {
+      toast.error('Please enter your email address');
+      return;
+    }
+
+    setSubmitting(true);
+    const loadingToast = toast.loading('Sending your free template...');
+
+    try {
+      const response = await fetch(`${API_URL}/api/leads/capture`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+
+      const data = await response.json();
+
+      toast.dismiss(loadingToast);
+
+      if (data.success) {
+        if (data.already_subscribed) {
+          toast.success(data.message, { duration: 6000 });
+        } else {
+          toast.success('Template sent! Check your email inbox (and spam folder).', { duration: 6000 });
+        }
+        setEmail('');
+      } else {
+        toast.error('Something went wrong. Please try again.');
+      }
+    } catch (error) {
+      toast.dismiss(loadingToast);
+      toast.error('Failed to send template. Please try again or contact support.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -194,8 +230,11 @@ export default function LandingPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              disabled={submitting}
             />
-            <button type="submit" className="btn-primary">Get Free Template</button>
+            <button type="submit" className="btn-primary" disabled={submitting}>
+              {submitting ? 'Sending...' : 'Get Free Template'}
+            </button>
           </form>
         </div>
       </section>
