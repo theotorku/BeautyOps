@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import { API_URL } from '@/lib/config';
 import { createClient } from '@/lib/supabase/client';
+import toast from 'react-hot-toast';
+import { CardSkeleton } from '@/components/LoadingSkeleton';
+import { NoInvoicesState } from '@/components/EmptyState';
 
 type Tab = 'subscription' | 'usage' | 'payment' | 'history';
 
@@ -42,7 +45,7 @@ export default function BillingPage() {
             const invoicesData = await invoicesRes.json();
             setInvoices(invoicesData.invoices || []);
         } catch (error) {
-            console.error('Error fetching billing data:', error);
+            toast.error('Failed to load billing data. Please refresh the page.');
         } finally {
             setLoading(false);
         }
@@ -53,6 +56,7 @@ export default function BillingPage() {
         if (!user) return;
 
         setActionLoading(true);
+        const loadingToast = toast.loading('Creating checkout session...');
         try {
             const res = await fetch(`${API_URL}/api/billing/create-checkout-session`, {
                 method: 'POST',
@@ -64,9 +68,12 @@ export default function BillingPage() {
                 })
             });
             const data = await res.json();
+            toast.dismiss(loadingToast);
+            toast.success('Redirecting to checkout...');
             window.location.href = data.url;
         } catch (error) {
-            console.error('Error creating checkout session:', error);
+            toast.dismiss(loadingToast);
+            toast.error('Failed to create checkout session. Please try again.');
             setActionLoading(false);
         }
     };
@@ -76,6 +83,7 @@ export default function BillingPage() {
         if (!user) return;
 
         setActionLoading(true);
+        const loadingToast = toast.loading('Opening subscription portal...');
         try {
             const res = await fetch(`${API_URL}/api/billing/create-portal-session`, {
                 method: 'POST',
@@ -83,9 +91,12 @@ export default function BillingPage() {
                 body: JSON.stringify({ user_id: user.id })
             });
             const data = await res.json();
+            toast.dismiss(loadingToast);
+            toast.success('Redirecting to subscription portal...');
             window.location.href = data.url;
         } catch (error) {
-            console.error('Error creating portal session:', error);
+            toast.dismiss(loadingToast);
+            toast.error('Failed to open subscription portal. Please try again.');
             setActionLoading(false);
         }
     };
@@ -123,7 +134,10 @@ export default function BillingPage() {
         return (
             <div style={{ animation: 'fadeIn 0.8s ease-out' }}>
                 <h1>Billing & Subscription</h1>
-                <p style={{ opacity: 0.6 }}>Loading...</p>
+                <p style={{ opacity: 0.6, marginBottom: '2rem' }}>
+                    Loading your billing information...
+                </p>
+                <CardSkeleton count={2} />
             </div>
         );
     }
@@ -445,12 +459,7 @@ export default function BillingPage() {
                     <h2 style={{ fontSize: '1.75rem', marginBottom: '2rem', fontWeight: '800' }}>Billing History</h2>
 
                     {invoices.length === 0 ? (
-                        <div style={{ textAlign: 'center', padding: '3rem 1rem' }}>
-                            <p style={{ opacity: 0.6, fontSize: '1.1rem' }}>No invoices yet</p>
-                            <p style={{ opacity: 0.4, fontSize: '0.9rem', marginTop: '0.5rem' }}>
-                                Your billing history will appear here once you subscribe
-                            </p>
-                        </div>
+                        <NoInvoicesState />
                     ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                             {invoices.map((invoice) => (
