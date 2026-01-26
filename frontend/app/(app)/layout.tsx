@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { logout } from '@/app/auth/actions';
+import MobileMenu from '@/components/MobileMenu';
+import '../mobile.css';
 
 export default async function AppLayout({
     children,
@@ -21,6 +23,7 @@ export default async function AppLayout({
 
     return (
         <div className="dashboard-layout">
+            <MobileMenu />
             <aside className="sidebar">
                 <div className="logo">BeautyOps AI</div>
                 <nav className="nav">
