@@ -198,7 +198,7 @@ async def send_template_email(to_email: str):
 
             <p><strong>Pro Tip:</strong> Use voice notes during your visit to capture everything quickly, then organize later. That's exactly what BeautyOps AI automates for you! 🎙️</p>
 
-            <a href="https://beauty-ops.vercel.app/signup" class="cta-button">Start Your 14-Day Free Trial →</a>
+            <a href="https://beautyop.io/signup" class="cta-button">Start Your 14-Day Free Trial →</a>
 
             <p>With BeautyOps AI, you can:</p>
             <ul>
@@ -216,7 +216,7 @@ async def send_template_email(to_email: str):
 
         <div class="footer">
             <p>BeautyOps AI - AI Workflow Engine for Beauty Account Executives</p>
-            <p>Questions? Reply to this email or visit <a href="https://beauty-ops.vercel.app">beauty-ops.vercel.app</a></p>
+            <p>Questions? Reply to this email or visit <a href="https://beautyop.io">beautyop.io</a></p>
         </div>
     </body>
     </html>
@@ -251,7 +251,7 @@ async def send_template_email(to_email: str):
 
     Pro Tip: Use voice notes during your visit to capture everything quickly, then organize later. That's exactly what BeautyOps AI automates for you!
 
-    Start Your 14-Day Free Trial: https://beauty-ops.vercel.app/signup
+    Start Your 14-Day Free Trial: https://beautyop.io/signup
 
     With BeautyOps AI, you can:
     - Turn voice notes into structured reports in 60 seconds
@@ -264,7 +264,7 @@ async def send_template_email(to_email: str):
 
     ---
     BeautyOps AI - AI Workflow Engine for Beauty Account Executives
-    Questions? Visit https://beauty-ops.vercel.app
+    Questions? Visit https://beautyop.io
     """
 
     # Create SendGrid message

@@ -24,7 +24,9 @@ app = FastAPI(title=settings.app_name)
 frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
 allowed_origins = [
     "http://localhost:3000",
-    "https://beauty-ops.vercel.app",
+    "https://beautyop.io",
+    "https://www.beautyop.io",
+    "https://beauty-ops.vercel.app",  # Legacy Vercel domain (can remove after migration)
     frontend_url
 ]
 
