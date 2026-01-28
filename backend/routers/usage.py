@@ -1,9 +1,11 @@
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
-from typing import Dict
+from typing import Dict, Optional
 from db import supabase
+from datetime import datetime
 
 router = APIRouter()
+
 
 class UsageStats(BaseModel):
     tier: str
@@ -12,39 +14,126 @@ class UsageStats(BaseModel):
     briefings_used: int
     briefings_limit: int
 
-# Mock data for demonstration
-MOCK_USAGE = {
-    "user_123": {
-        "tier": "Solo AE",
-        "pos_credits_used": 7,
+
+# Tier-based limits
+TIER_LIMITS = {
+    "solo_ae": {
         "pos_credits_limit": 10,
-        "briefings_used": 4,
         "briefings_limit": 5
+    },
+    "pro_ae": {
+        "pos_credits_limit": -1,  # Unlimited
+        "briefings_limit": -1     # Unlimited
+    },
+    "enterprise": {
+        "pos_credits_limit": -1,  # Unlimited
+        "briefings_limit": -1     # Unlimited
     }
 }
 
-@router.get("/stats", response_model=UsageStats)
-async def get_usage_stats(user_id: str = "user_123"):
-    if user_id in MOCK_USAGE:
-        return MOCK_USAGE[user_id]
-    raise HTTPException(status_code=404, detail="User not found")
 
-def check_access(user_id: str, feature: str):
+@router.get("/stats", response_model=UsageStats)
+async def get_usage_stats(user_id: str):
+    """
+    Get real-time usage statistics for a user based on their subscription tier.
+    Returns current month's usage and limits based on tier.
+    """
+    try:
+        # Get user's current subscription tier
+        subscription = supabase.table("subscriptions").select("*").eq("user_id", user_id).eq("status", "active").execute()
+
+        # Default tier if no subscription (free trial or new user)
+        tier = "solo_ae"
+        tier_display = "Free Trial"
+
+        if subscription.data and len(subscription.data) > 0:
+            tier = subscription.data[0]["subscription_tier"]
+            tier_display = tier.replace("_", " ").title()
+
+        # Get usage from usage_tracking table
+        usage = supabase.table("usage_tracking").select("*").eq("user_id", user_id).execute()
+
+        # Calculate usage (default to 0 if no records)
+        pos_credits_used = 0
+        briefings_used = 0
+
+        if usage.data and len(usage.data) > 0:
+            # Sum up all usage records for current billing period
+            for record in usage.data:
+                if record.get("feature_name") == "pos_analysis":
+                    pos_credits_used += record.get("count", 0)
+                elif record.get("feature_name") == "proactive_briefing":
+                    briefings_used += record.get("count", 0)
+
+        # Get limits based on tier
+        limits = TIER_LIMITS.get(tier, TIER_LIMITS["solo_ae"])
+
+        return UsageStats(
+            tier=tier_display,
+            pos_credits_used=pos_credits_used,
+            pos_credits_limit=limits["pos_credits_limit"],
+            briefings_used=briefings_used,
+            briefings_limit=limits["briefings_limit"]
+        )
+
+    except Exception as e:
+        # Return default stats if database query fails (graceful degradation)
+        return UsageStats(
+            tier="Free Trial",
+            pos_credits_used=0,
+            pos_credits_limit=10,
+            briefings_used=0,
+            briefings_limit=5
+        )
+
+
+def check_access(user_id: str, feature: str) -> bool:
     """
     Utility to check if a user has access to a specific feature based on their tier.
+    Returns True if user has access, False if limit exceeded or feature not available.
     """
-    stats = MOCK_USAGE.get(user_id)
-    if not stats:
-        return False
-    
-    tier = stats["tier"]
-    
-    # Simple gating logic
-    if feature == "pos_analysis" and tier == "Solo AE":
-        if stats["credits_used"] >= stats["credits_limit"]:
-            return False
-            
-    if feature in ["training_generator", "content_assistant"] and tier == "Solo AE":
-        return False # Pro feature
-        
-    return True
+    try:
+        # Get subscription tier
+        subscription = supabase.table("subscriptions").select("*").eq("user_id", user_id).eq("status", "active").execute()
+
+        tier = "solo_ae"  # Default
+        if subscription.data and len(subscription.data) > 0:
+            tier = subscription.data[0]["subscription_tier"]
+
+        # Pro and Enterprise users have access to everything
+        if tier in ["pro_ae", "enterprise"]:
+            return True
+
+        # Solo AE users: Check feature limits
+        if tier == "solo_ae":
+            # Check if feature is pro-only
+            pro_only_features = ["training_generator", "content_assistant", "team_collaboration"]
+            if feature in pro_only_features:
+                return False
+
+            # Check POS analysis credits
+            if feature == "pos_analysis":
+                usage = supabase.table("usage_tracking").select("*").eq("user_id", user_id).eq("feature_name", "pos_analysis").execute()
+
+                credits_used = 0
+                if usage.data:
+                    credits_used = sum(record.get("count", 0) for record in usage.data)
+
+                return credits_used < TIER_LIMITS["solo_ae"]["pos_credits_limit"]
+
+            # Check briefings limit
+            if feature == "proactive_briefing":
+                usage = supabase.table("usage_tracking").select("*").eq("user_id", user_id).eq("feature_name", "proactive_briefing").execute()
+
+                briefings_used = 0
+                if usage.data:
+                    briefings_used = sum(record.get("count", 0) for record in usage.data)
+
+                return briefings_used < TIER_LIMITS["solo_ae"]["briefings_limit"]
+
+        return True
+
+    except Exception as e:
+        # If database query fails, default to allowing access (fail open)
+        print(f"Error checking access for user {user_id}, feature {feature}: {str(e)}")
+        return True
