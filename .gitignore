@@ -9,6 +9,10 @@ __pycache__/
 .env.local
 .env.*.local
 
+# MCP Configuration (contains API keys)
+.mcp.json
+.claude/settings.local.json
+
 # Build outputs
 .next/
 out/

@@ -104,8 +104,8 @@ export default function BillingPage() {
     const tiers = {
         solo: {
             name: 'Solo AE',
-            monthly: { price: 49, priceId: 'price_1SrOcs00JoLiYcMMIsqjZ1J4' },
-            yearly: { price: 470, priceId: 'price_1SrOc800JoLiYcMMnzQFRXXq' },
+            monthly: { price: 49, priceId: 'price_1SrOOH03NjWbp5DbcEqGXxbS' },
+            yearly: { price: 470, priceId: 'price_1SrOSl03NjWbp5DbC9qZ931h' },
             features: [
                 'Unlimited Store Visit Reports',
                 'Basic Proactive Briefings',
@@ -116,8 +116,8 @@ export default function BillingPage() {
         },
         pro: {
             name: 'Pro AE',
-            monthly: { price: 149, priceId: 'price_1SrOdQ00JoLiYcMMzbeQJIUQ' },
-            yearly: { price: 1430, priceId: 'price_1SrOeA00JoLiYcMMA200uwXC' },
+            monthly: { price: 149, priceId: 'price_1SrMWs03NjWbp5DbTjJcBfS1' },
+            yearly: { price: 1430, priceId: 'price_1SrOTa03NjWbp5Db9workK1L' },
             features: [
                 'Everything in Solo',
                 'Unlimited AI POS Analysis',

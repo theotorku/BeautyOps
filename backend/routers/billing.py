@@ -249,15 +249,15 @@ async def handle_invoice_payment_failed(invoice):
 def determine_tier_from_price(price_id: str) -> str:
     """
     Determine subscription tier from Stripe price ID
-    Railway Sandbox Price IDs
+    PRODUCTION Price IDs (Live Mode)
     """
     tier_mapping = {
         # Solo AE
-        "price_1SrOcs00JoLiYcMMIsqjZ1J4": "solo_ae",  # Monthly $49
-        "price_1SrOc800JoLiYcMMnzQFRXXq": "solo_ae",  # Yearly $470
+        "price_1SrOOH03NjWbp5DbcEqGXxbS": "solo_ae",  # Monthly $49
+        "price_1SrOSl03NjWbp5DbC9qZ931h": "solo_ae",  # Yearly $470
         # Pro AE
-        "price_1SrOdQ00JoLiYcMMzbeQJIUQ": "pro_ae",   # Monthly $149
-        "price_1SrOeA00JoLiYcMMA200uwXC": "pro_ae",   # Yearly $1,430
+        "price_1SrMWs03NjWbp5DbTjJcBfS1": "pro_ae",   # Monthly $149
+        "price_1SrOTa03NjWbp5Db9workK1L": "pro_ae",   # Yearly $1,430
     }
 
     return tier_mapping.get(price_id, "solo_ae")
