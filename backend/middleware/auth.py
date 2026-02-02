@@ -9,6 +9,7 @@ async def get_current_user(authorization: Optional[str] = Header(None)) -> Dict[
     """
     Extract user from Supabase JWT token
     Raises 401 if token is missing or invalid
+    Supports both HS256 (legacy) and ES256 (modern ECC) algorithms
     """
     if not authorization:
         raise HTTPException(status_code=401, detail="No authorization header")
@@ -16,23 +17,49 @@ async def get_current_user(authorization: Optional[str] = Header(None)) -> Dict[
     try:
         # Extract token from Bearer header
         token = authorization.replace("Bearer ", "")
-        supabase_jwt_secret = os.getenv("SUPABASE_JWT_SECRET")
 
-        if not supabase_jwt_secret:
+        # Get both legacy and modern secrets
+        legacy_jwt_secret = os.getenv("SUPABASE_JWT_SECRET")  # HS256 legacy secret
+        jwt_public_key = os.getenv("SUPABASE_JWT_PUBLIC_KEY")  # ES256 public key
+
+        if not legacy_jwt_secret and not jwt_public_key:
             raise HTTPException(status_code=500, detail="JWT secret not configured")
 
-        # Decode and verify token
-        payload = jwt.decode(
-            token,
-            supabase_jwt_secret,
-            algorithms=["HS256"],
-            audience="authenticated"
-        )
+        # Try ES256 first (modern tokens)
+        if jwt_public_key:
+            try:
+                payload = jwt.decode(
+                    token,
+                    jwt_public_key,
+                    algorithms=["ES256"],
+                    audience="authenticated"
+                )
+                return {
+                    "user_id": payload.get("sub"),
+                    "email": payload.get("email")
+                }
+            except jwt.InvalidTokenError:
+                pass  # Try legacy HS256 next
 
-        return {
-            "user_id": payload.get("sub"),
-            "email": payload.get("email")
-        }
+        # Try HS256 (legacy tokens)
+        if legacy_jwt_secret:
+            try:
+                payload = jwt.decode(
+                    token,
+                    legacy_jwt_secret,
+                    algorithms=["HS256"],
+                    audience="authenticated"
+                )
+                return {
+                    "user_id": payload.get("sub"),
+                    "email": payload.get("email")
+                }
+            except jwt.InvalidTokenError:
+                pass  # Will raise error below
+
+        # If both fail, raise invalid token error
+        raise jwt.InvalidTokenError("Token verification failed with both HS256 and ES256")
+
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired")
     except jwt.InvalidTokenError as e:
