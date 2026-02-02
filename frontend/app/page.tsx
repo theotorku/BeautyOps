@@ -6,25 +6,30 @@ import toast from 'react-hot-toast';
 import { API_URL } from '@/lib/config';
 
 export default function LandingPage() {
-  const [email, setEmail] = useState('');
+  const [formData, setFormData] = useState({
+    email: '',
+    industry: 'beauty',
+    role: 'Account Executive',
+    experience_level: 'intermediate'
+  });
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!email) {
+    if (!formData.email) {
       toast.error('Please enter your email address');
       return;
     }
 
     setSubmitting(true);
-    const loadingToast = toast.loading('Sending your free template...');
+    const loadingToast = toast.loading('Generating your personalized template...');
 
     try {
       const response = await fetch(`${API_URL}/api/leads/capture`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
+        body: JSON.stringify(formData)
       });
 
       const data = await response.json();
@@ -35,9 +40,14 @@ export default function LandingPage() {
         if (data.already_subscribed) {
           toast.success(data.message, { duration: 6000 });
         } else {
-          toast.success('Template sent! Check your email inbox (and spam folder).', { duration: 6000 });
+          toast.success(data.message || 'Your personalized template is on its way! Check your email.', { duration: 6000 });
         }
-        setEmail('');
+        setFormData({
+          email: '',
+          industry: 'beauty',
+          role: 'Account Executive',
+          experience_level: 'intermediate'
+        });
       } else {
         toast.error('Something went wrong. Please try again.');
       }
@@ -221,20 +231,64 @@ export default function LandingPage() {
       {/* Lead Magnet */}
       <section className="lead-magnet">
         <div className="lead-magnet-content">
-          <h2>📋 Free: The AE's Store Visit Template</h2>
-          <p>The exact template top Beauty AEs use to capture winning insights. Download free.</p>
-          <form onSubmit={handleSubmit} className="lead-form">
-            <input
-              type="email"
-              placeholder="Enter your work email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              disabled={submitting}
-            />
-            <button type="submit" className="btn-primary" disabled={submitting}>
-              {submitting ? 'Sending...' : 'Get Free Template'}
+          <h2>📋 Get Your Personalized Store Visit Template</h2>
+          <p>AI-generated template customized for your role and industry. Free, delivered instantly.</p>
+          <form onSubmit={handleSubmit} className="lead-form-enhanced">
+            <div className="form-row">
+              <input
+                type="email"
+                placeholder="Work email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                required
+                disabled={submitting}
+                style={{ flex: 2 }}
+              />
+            </div>
+            <div className="form-row">
+              <select
+                value={formData.industry}
+                onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
+                disabled={submitting}
+                style={{ flex: 1 }}
+              >
+                <option value="beauty">Beauty</option>
+                <option value="luxury skincare">Luxury Skincare</option>
+                <option value="cosmetics">Cosmetics</option>
+                <option value="fragrance">Fragrance</option>
+                <option value="haircare">Haircare</option>
+                <option value="wellness">Wellness & Spa</option>
+              </select>
+              <select
+                value={formData.role}
+                onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                disabled={submitting}
+                style={{ flex: 1 }}
+              >
+                <option value="Account Executive">Account Executive</option>
+                <option value="Senior Account Executive">Senior AE</option>
+                <option value="Field Sales Rep">Field Sales Rep</option>
+                <option value="Territory Manager">Territory Manager</option>
+                <option value="Regional Manager">Regional Manager</option>
+                <option value="Brand Ambassador">Brand Ambassador</option>
+              </select>
+              <select
+                value={formData.experience_level}
+                onChange={(e) => setFormData({ ...formData, experience_level: e.target.value })}
+                disabled={submitting}
+                style={{ flex: 1 }}
+              >
+                <option value="beginner">Beginner (0-2 years)</option>
+                <option value="intermediate">Intermediate (2-5 years)</option>
+                <option value="advanced">Advanced (5+ years)</option>
+              </select>
+            </div>
+            <button type="submit" className="btn-primary btn-large" disabled={submitting} style={{ width: '100%' }}>
+              {submitting ? '✨ Generating Your Template...' : '✨ Generate My Free Template'}
             </button>
+            <p style={{ fontSize: '0.85rem', opacity: 0.6, textAlign: 'center', marginTop: '0.5rem' }}>
+              Personalized by AI • Delivered instantly • No credit card required
+            </p>
           </form>
         </div>
       </section>

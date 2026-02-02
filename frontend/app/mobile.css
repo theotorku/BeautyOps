@@ -209,6 +209,16 @@
     width: 100%;
   }
 
+  /* Enhanced lead form mobile */
+  .lead-form-enhanced .form-row {
+    flex-direction: column;
+  }
+
+  .lead-form-enhanced input,
+  .lead-form-enhanced select {
+    width: 100%;
+  }
+
   /* Pain points mobile */
   .pain-grid {
     grid-template-columns: 1fr;
