@@ -42,7 +42,15 @@ export async function signup(formData: FormData) {
 
 export async function logout() {
     const supabase = await createClient();
-    await supabase.auth.signOut();
+
+    // Sign out from Supabase (clears auth cookies)
+    const { error } = await supabase.auth.signOut({ scope: 'local' });
+
+    if (error) {
+        console.error('Logout error:', error);
+    }
+
+    // Force clear cache and redirect to home
     revalidatePath('/', 'layout');
     redirect('/');
 }
