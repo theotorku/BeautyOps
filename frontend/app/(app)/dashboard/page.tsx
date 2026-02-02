@@ -1,9 +1,66 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import { authenticatedFetch } from '@/lib/api';
+
+interface CalendarEvent {
+  id: string;
+  summary: string;
+  start: string;
+  end: string;
+  location?: string;
+  description?: string;
+}
 
 export default function Dashboard() {
   const router = useRouter();
+  const [upcomingEvents, setUpcomingEvents] = useState<CalendarEvent[]>([]);
+  const [loadingEvents, setLoadingEvents] = useState(true);
+
+  useEffect(() => {
+    loadUpcomingEvents();
+  }, []);
+
+  const loadUpcomingEvents = async () => {
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) {
+        setLoadingEvents(false);
+        return;
+      }
+
+      const response = await authenticatedFetch(`/api/calendar/events?user_id=${user.id}`);
+      if (response.ok) {
+        const events = await response.json();
+        // Show only next 3 events
+        setUpcomingEvents(events.slice(0, 3));
+      }
+    } catch (error) {
+      console.error('Error loading calendar events:', error);
+    } finally {
+      setLoadingEvents(false);
+    }
+  };
+
+  const formatEventTime = (dateString: string) => {
+    const date = new Date(dateString);
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const isToday = date.toDateString() === today.toDateString();
+    const isTomorrow = date.toDateString() === tomorrow.toDateString();
+
+    const timeStr = date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+
+    if (isToday) return `Today at ${timeStr}`;
+    if (isTomorrow) return `Tomorrow at ${timeStr}`;
+    return date.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' }) + ` at ${timeStr}`;
+  };
 
   return (
     <div style={{ animation: 'fadeIn 1s ease-out' }}>
@@ -71,6 +128,87 @@ export default function Dashboard() {
               <span style={{ fontSize: '1.2rem' }}>📸</span> Competitive Snapshot
             </button>
           </div>
+        </div>
+
+        {/* Upcoming Calendar Events */}
+        <div className="card" style={{ animation: 'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both', animationDelay: '0.25s' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: '700' }}>Upcoming Visits</h3>
+            <button
+              onClick={() => router.push('/integrations')}
+              style={{
+                fontSize: '0.75rem',
+                padding: '0.5rem 1rem',
+                background: 'rgba(255,255,255,0.03)',
+                border: '1px solid var(--glass-border)'
+              }}
+            >
+              {upcomingEvents.length > 0 ? '📅' : '+ Connect'}
+            </button>
+          </div>
+
+          {loadingEvents ? (
+            <div style={{ marginTop: '1.5rem', opacity: 0.5 }}>
+              <p>Loading calendar events...</p>
+            </div>
+          ) : upcomingEvents.length > 0 ? (
+            <ul style={{ listStyle: 'none', marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {upcomingEvents.map((event, i) => (
+                <li
+                  key={event.id}
+                  style={{
+                    padding: '1rem',
+                    background: 'rgba(255,255,255,0.02)',
+                    borderRadius: '12px',
+                    border: '1px solid var(--glass-border)',
+                    transition: 'var(--transition)'
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                    e.currentTarget.style.borderColor = 'var(--primary)';
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
+                    e.currentTarget.style.borderColor = 'var(--glass-border)';
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+                    <span style={{ fontSize: '1.5rem', marginTop: '0.1rem' }}>📅</span>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontWeight: '600', fontSize: '0.95rem', marginBottom: '0.35rem' }}>
+                        {event.summary}
+                      </p>
+                      <p style={{ fontSize: '0.85rem', opacity: 0.6 }}>
+                        {formatEventTime(event.start)}
+                      </p>
+                      {event.location && (
+                        <p style={{ fontSize: '0.8rem', opacity: 0.5, marginTop: '0.25rem' }}>
+                          📍 {event.location}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div style={{
+              marginTop: '1.5rem',
+              padding: '2rem',
+              textAlign: 'center',
+              background: 'rgba(255,255,255,0.02)',
+              borderRadius: '12px',
+              border: '1px dashed var(--glass-border)'
+            }}>
+              <span style={{ fontSize: '2.5rem', opacity: 0.3 }}>📅</span>
+              <p style={{ marginTop: '0.75rem', opacity: 0.6, fontSize: '0.9rem' }}>
+                No upcoming events
+              </p>
+              <p style={{ marginTop: '0.25rem', opacity: 0.4, fontSize: '0.85rem' }}>
+                Connect your calendar to see visits here
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Performance Overview */}

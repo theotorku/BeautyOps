@@ -14,6 +14,7 @@ export default async function AppLayout({
 
     const navItems = [
         { href: '/dashboard', icon: '🏠', label: 'Dashboard' },
+        { href: '/briefing', icon: '🤖', label: 'AI Briefing' },
         { href: '/visits', icon: '🎙️', label: 'Store Visits' },
         { href: '/pos', icon: '📊', label: 'POS Analysis' },
         { href: '/training', icon: '📖', label: 'Training' },
