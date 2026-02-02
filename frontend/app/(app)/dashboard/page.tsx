@@ -25,15 +25,7 @@ export default function Dashboard() {
 
   const loadUpcomingEvents = async () => {
     try {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-
-      if (!user) {
-        setLoadingEvents(false);
-        return;
-      }
-
-      const response = await authenticatedFetch(`/api/calendar/events?user_id=${user.id}`);
+      const response = await authenticatedFetch('/api/calendar/events');
       if (response.ok) {
         const events = await response.json();
         // Show only next 3 events

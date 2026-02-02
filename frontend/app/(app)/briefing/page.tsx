@@ -40,7 +40,14 @@ export default function BriefingPage() {
     const loadBriefing = async () => {
         try {
             setLoading(true);
+            setError(null);
             const response = await authenticatedFetch('/api/calendar/proactive-briefing');
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ detail: response.statusText }));
+                throw new Error(errorData.detail || `Server error: ${response.status}`);
+            }
+
             const data = await response.json();
             setBriefing(data);
         } catch (err: any) {
