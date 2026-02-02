@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from typing import Dict, Optional
 from db import supabase
 from datetime import datetime
+from middleware.auth import get_current_user
 
 router = APIRouter()
 
@@ -33,11 +34,12 @@ TIER_LIMITS = {
 
 
 @router.get("/stats", response_model=UsageStats)
-async def get_usage_stats(user_id: str):
+async def get_usage_stats(user: Dict = Depends(get_current_user)):
     """
-    Get real-time usage statistics for a user based on their subscription tier.
+    Get real-time usage statistics for the current user based on their subscription tier.
     Returns current month's usage and limits based on tier.
     """
+    user_id = user["user_id"]
     try:
         # Get user's current subscription tier
         subscription = supabase.table("subscriptions").select("*").eq("user_id", user_id).eq("status", "active").execute()
@@ -113,22 +115,32 @@ def check_access(user_id: str, feature: str) -> bool:
 
             # Check POS analysis credits
             if feature == "pos_analysis":
-                usage = supabase.table("usage_tracking").select("*").eq("user_id", user_id).eq("feature_name", "pos_analysis").execute()
+                now = datetime.now()
+                first_of_month = datetime(now.year, now.month, 1).isoformat()
+                
+                usage = supabase.table("usage_tracking")\
+                    .select("count")\
+                    .eq("user_id", user_id)\
+                    .eq("feature_name", "pos_analysis")\
+                    .gte("created_at", first_of_month)\
+                    .execute()
 
-                credits_used = 0
-                if usage.data:
-                    credits_used = sum(record.get("count", 0) for record in usage.data)
-
+                credits_used = sum(record.get("count", 0) for record in usage.data) if usage.data else 0
                 return credits_used < TIER_LIMITS["solo_ae"]["pos_credits_limit"]
 
             # Check briefings limit
             if feature == "proactive_briefing":
-                usage = supabase.table("usage_tracking").select("*").eq("user_id", user_id).eq("feature_name", "proactive_briefing").execute()
+                now = datetime.now()
+                first_of_month = datetime(now.year, now.month, 1).isoformat()
 
-                briefings_used = 0
-                if usage.data:
-                    briefings_used = sum(record.get("count", 0) for record in usage.data)
+                usage = supabase.table("usage_tracking")\
+                    .select("count")\
+                    .eq("user_id", user_id)\
+                    .eq("feature_name", "proactive_briefing")\
+                    .gte("created_at", first_of_month)\
+                    .execute()
 
+                briefings_used = sum(record.get("count", 0) for record in usage.data) if usage.data else 0
                 return briefings_used < TIER_LIMITS["solo_ae"]["briefings_limit"]
 
         return True
@@ -137,3 +149,33 @@ def check_access(user_id: str, feature: str) -> bool:
         # If database query fails, default to allowing access (fail open)
         print(f"Error checking access for user {user_id}, feature {feature}: {str(e)}")
         return True
+
+
+def record_usage(user_id: str, feature: str, count: int = 1):
+    """
+    Logs usage of a feature in the usage_tracking table.
+    """
+    try:
+        supabase.table("usage_tracking").insert({
+            "user_id": user_id,
+            "feature_name": feature,
+            "count": count,
+            "created_at": datetime.now().isoformat()
+        }).execute()
+    except Exception as e:
+        print(f"Error recording usage for user {user_id}, feature {feature}: {str(e)}")
+
+
+def require_access(feature: str):
+    """
+    FastAPI dependency factory to enforce usage limits.
+    Usage: Depends(require_access("pos_analysis"))
+    """
+    async def access_dependency(user: Dict = Depends(get_current_user)):
+        if not check_access(user["user_id"], feature):
+            raise HTTPException(
+                status_code=403, 
+                detail=f"Usage limit reached for {feature.replace('_', ' ')}. Upgrade your plan to continue."
+            )
+        return user
+    return access_dependency
