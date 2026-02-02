@@ -1,10 +1,12 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, EmailStr
+from typing import Optional, List
 import os
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail, Email, To, Content
 from datetime import datetime
 from db import supabase  # Use shared Supabase client from db.py
+from services.template_generator import get_template_generator
 
 router = APIRouter()
 
@@ -15,6 +17,10 @@ SENDGRID_FROM_NAME = os.getenv("SENDGRID_FROM_NAME", "BeautyOps AI")
 
 class LeadCaptureRequest(BaseModel):
     email: EmailStr
+    industry: Optional[str] = "beauty"
+    role: Optional[str] = "Account Executive"
+    focus_areas: Optional[List[str]] = None
+    experience_level: Optional[str] = "intermediate"
 
 @router.post("/capture")
 async def capture_lead(request: LeadCaptureRequest):
@@ -50,9 +56,15 @@ async def capture_lead(request: LeadCaptureRequest):
 
             lead_id = new_lead.data[0]["id"]
 
-        # Send email with SendGrid
+        # Send email with AI-generated template
         try:
-            await send_template_email(request.email)
+            await send_template_email(
+                to_email=request.email,
+                industry=request.industry,
+                role=request.role,
+                focus_areas=request.focus_areas,
+                experience_level=request.experience_level
+            )
 
             # Update lead as template sent
             supabase.table("leads").update({
@@ -62,7 +74,7 @@ async def capture_lead(request: LeadCaptureRequest):
 
             return {
                 "success": True,
-                "message": "Template sent! Check your email in the next few minutes.",
+                "message": "Your personalized template is on its way! Check your email in the next few minutes.",
                 "already_subscribed": False
             }
 
@@ -83,18 +95,73 @@ async def capture_lead(request: LeadCaptureRequest):
         raise HTTPException(status_code=500, detail="Failed to process your request. Please try again.")
 
 
-async def send_template_email(to_email: str):
+async def send_template_email(
+    to_email: str,
+    industry: str = "beauty",
+    role: str = "Account Executive",
+    focus_areas: Optional[List[str]] = None,
+    experience_level: str = "intermediate"
+):
     """
-    Send the store visit template via SendGrid.
+    Generate and send a personalized store visit template via SendGrid using AI.
+
+    Args:
+        to_email: Recipient email address
+        industry: Industry vertical (default: beauty)
+        role: User's role (default: Account Executive)
+        focus_areas: Specific areas to focus on
+        experience_level: Experience level (beginner, intermediate, advanced)
     """
     if not SENDGRID_API_KEY:
         print("Warning: SENDGRID_API_KEY not set. Email not sent.")
         return
 
-    # Email content
-    subject = "Your Free Store Visit Template - BeautyOps AI"
+    # Generate AI-powered template
+    try:
+        generator = get_template_generator()
+        template = await generator.generate_template(
+            industry=industry,
+            role=role,
+            focus_areas=focus_areas,
+            experience_level=experience_level
+        )
 
-    html_content = f"""
+        # Format as HTML and text
+        html_content = generator.format_template_as_html(template)
+        text_content = generator.format_template_as_text(template)
+
+        # Email subject with personalization
+        subject = f"Your Personalized {industry.title()} Store Visit Template - BeautyOps AI"
+
+    except Exception as e:
+        print(f"AI template generation failed: {e}. Falling back to static template.")
+        # Fallback to static template if AI fails
+        subject = "Your Free Store Visit Template - BeautyOps AI"
+        html_content = get_fallback_html_template()
+        text_content = get_fallback_text_template()
+
+    # Create SendGrid message
+    message = Mail(
+        from_email=Email(SENDGRID_FROM_EMAIL, SENDGRID_FROM_NAME),
+        to_emails=To(to_email),
+        subject=subject,
+        plain_text_content=Content("text/plain", text_content),
+        html_content=Content("text/html", html_content)
+    )
+
+    # Send email
+    sg = SendGridAPIClient(SENDGRID_API_KEY)
+    response = sg.send(message)
+
+    if response.status_code not in [200, 201, 202]:
+        raise Exception(f"SendGrid returned status {response.status_code}")
+
+    return True
+
+
+def get_fallback_html_template() -> str:
+    """Static fallback template if AI generation fails"""
+    return f"""
     <!DOCTYPE html>
     <html>
     <head>
@@ -217,7 +284,10 @@ async def send_template_email(to_email: str):
     </html>
     """
 
-    plain_text_content = f"""
+
+def get_fallback_text_template() -> str:
+    """Static fallback plain text template if AI generation fails"""
+    return f"""
     Your Store Visit Template is Here!
 
     Hi there!
@@ -261,24 +331,6 @@ async def send_template_email(to_email: str):
     BeautyOps AI - AI Workflow Engine for Beauty Account Executives
     Questions? Visit https://beautyop.io
     """
-
-    # Create SendGrid message
-    message = Mail(
-        from_email=Email(SENDGRID_FROM_EMAIL, SENDGRID_FROM_NAME),
-        to_emails=To(to_email),
-        subject=subject,
-        plain_text_content=Content("text/plain", plain_text_content),
-        html_content=Content("text/html", html_content)
-    )
-
-    # Send email
-    sg = SendGridAPIClient(SENDGRID_API_KEY)
-    response = sg.send(message)
-
-    if response.status_code not in [200, 201, 202]:
-        raise Exception(f"SendGrid returned status {response.status_code}")
-
-    return True
 
 
 @router.get("/leads")
