@@ -22,7 +22,15 @@ settings = Settings()
 
 from routers import visits, pos, extra_features, usage, calendar, vision, billing, leads
 
-app = FastAPI(title=settings.app_name)
+# Disable API docs in production (Railway sets these env vars automatically)
+is_production = bool(os.getenv("RAILWAY_ENVIRONMENT") or os.getenv("RAILWAY_PROJECT_ID"))
+
+app = FastAPI(
+    title=settings.app_name,
+    docs_url=None if is_production else "/docs",
+    redoc_url=None if is_production else "/redoc",
+    openapi_url=None if is_production else "/openapi.json",
+)
 
 # CORS Configuration - restrict to known origins and specific methods/headers
 frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
