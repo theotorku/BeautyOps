@@ -142,8 +142,20 @@ h2 {
 
 .sidebar-brand {
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+  align-items: center;
+  gap: 0.85rem;
+  text-decoration: none;
+  color: inherit;
+  transition: var(--transition);
+}
+
+.sidebar-brand:hover {
+  opacity: 0.85;
+}
+
+.sidebar-logo-icon {
+  border-radius: 12px;
+  flex-shrink: 0;
 }
 
 .sidebar-edition {
@@ -1423,6 +1435,23 @@ textarea:focus {
   background: rgba(2, 2, 4, 0.8);
   backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--glass-border);
+}
+
+.landing-logo-link {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.landing-logo-link:hover {
+  opacity: 0.8;
+}
+
+.landing-logo-img {
+  border-radius: 8px;
+  flex-shrink: 0;
 }
 
 .landing-logo {

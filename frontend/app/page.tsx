@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { API_URL } from '@/lib/config';
@@ -63,7 +64,10 @@ export default function LandingPage() {
     <div className="landing-page">
       {/* Navigation */}
       <nav className="landing-nav">
-        <div className="landing-logo">✨ BeautyOps AI</div>
+        <Link href="/" className="landing-logo-link">
+          <Image src="/logo-icon.svg" alt="" width={32} height={32} className="landing-logo-img" />
+          <span className="landing-logo">BeautyOps AI</span>
+        </Link>
         <div className="landing-nav-links">
           <a href="#features">Features</a>
           <a href="#pricing">Pricing</a>
@@ -300,7 +304,10 @@ export default function LandingPage() {
       <footer className="landing-footer">
         <div className="footer-content">
           <div className="footer-brand">
-            <span className="landing-logo">✨ BeautyOps AI</span>
+            <span className="landing-logo-link" style={{ textDecoration: 'none' }}>
+              <Image src="/logo-icon.svg" alt="" width={28} height={28} className="landing-logo-img" />
+              <span className="landing-logo">BeautyOps AI</span>
+            </span>
             <p>AI Workflow Engine for Beauty Account Executives</p>
           </div>
           <div className="footer-links">

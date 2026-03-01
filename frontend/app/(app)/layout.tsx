@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { createClient } from '@/lib/supabase/server';
 import { logout } from '@/app/auth/actions';
 import MobileMenu from '@/components/MobileMenu';
@@ -27,10 +28,19 @@ export default async function AppLayout({
         <div className="dashboard-layout">
             <MobileMenu />
             <aside className="sidebar">
-                <div className="sidebar-brand">
-                    <div className="logo">BeautyOps AI</div>
-                    <span className="sidebar-edition">Intelligence Platform</span>
-                </div>
+                <Link href="/dashboard" className="sidebar-brand">
+                    <Image
+                        src="/logo-icon.svg"
+                        alt="BeautyOps AI"
+                        width={40}
+                        height={40}
+                        className="sidebar-logo-icon"
+                    />
+                    <div>
+                        <div className="logo">BeautyOps AI</div>
+                        <span className="sidebar-edition">Intelligence Platform</span>
+                    </div>
+                </Link>
                 <nav className="nav">
                     {navItems.map((item) => (
                         <NavItem

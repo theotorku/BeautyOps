@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" fill="none">
+  <defs>
+    <linearGradient id="pg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e5b9c4"/>
+      <stop offset="100%" stop-color="#c084fc"/>
+    </linearGradient>
+    <linearGradient id="ag" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#c084fc"/>
+      <stop offset="100%" stop-color="#e5b9c4"/>
+    </linearGradient>
+    <linearGradient id="ig" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e5b9c4"/>
+      <stop offset="50%" stop-color="#d4a5b2"/>
+      <stop offset="100%" stop-color="#c084fc"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="48" cy="48" r="46" fill="#020204" stroke="url(#pg)" stroke-width="1" opacity="0.8"/>
+
+  <g filter="url(#glow)">
+    <!-- Outer ring -->
+    <circle cx="48" cy="48" r="36" fill="none" stroke="url(#pg)" stroke-width="1.5" opacity="0.25"/>
+
+    <!-- Eye / petal shape -->
+    <path d="M48 16 C64 28, 80 42, 80 48 C80 54, 64 68, 48 80 C32 68, 16 54, 16 48 C16 42, 32 28, 48 16 Z"
+          fill="url(#ig)" opacity="0.12"/>
+    <path d="M48 16 C64 28, 80 42, 80 48 C80 54, 64 68, 48 80 C32 68, 16 54, 16 48 C16 42, 32 28, 48 16 Z"
+          fill="none" stroke="url(#ig)" stroke-width="2.5"/>
+
+    <!-- Inner circle -->
+    <circle cx="48" cy="48" r="12" fill="url(#pg)" opacity="0.85"/>
+    <circle cx="48" cy="48" r="12" fill="none" stroke="url(#ag)" stroke-width="1" opacity="0.5"/>
+
+    <!-- Center sparkle -->
+    <circle cx="48" cy="48" r="3.5" fill="#fff" opacity="0.95"/>
+
+    <!-- Orbital -->
+    <ellipse cx="48" cy="48" rx="28" ry="12" fill="none" stroke="url(#ag)" stroke-width="1"
+             opacity="0.35" transform="rotate(-30, 48, 48)"/>
+  </g>
+</svg>
