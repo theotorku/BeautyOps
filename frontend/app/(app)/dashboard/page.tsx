@@ -3,6 +3,8 @@
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { authenticatedFetch } from '@/lib/api';
+import DigestSettings from '@/components/DigestSettings';
+import FollowUpReminders from '@/components/FollowUpReminders';
 
 interface CalendarEvent {
   id: string;
@@ -17,6 +19,7 @@ export default function Dashboard() {
   const router = useRouter();
   const [upcomingEvents, setUpcomingEvents] = useState<CalendarEvent[]>([]);
   const [loadingEvents, setLoadingEvents] = useState(true);
+  const [showDigest, setShowDigest] = useState(false);
 
   useEffect(() => {
     loadUpcomingEvents();
@@ -89,6 +92,9 @@ export default function Dashboard() {
             </button>
             <button className="btn-accent" onClick={() => router.push('/integrations')}>
               <span style={{ fontSize: '1.2rem' }}>📸</span> Competitive Snapshot
+            </button>
+            <button className="btn-ghost" onClick={() => setShowDigest(true)}>
+              <span style={{ fontSize: '1.1rem' }}>📧</span> Digest Settings
             </button>
           </div>
         </div>
@@ -172,6 +178,9 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* AI Follow-Up Reminders */}
+        <FollowUpReminders />
+
         {/* AI Vision Insight Card */}
         <div className="card card-animated card-full card-vision glass-morphism">
           <div className="vision-layout">
@@ -233,6 +242,8 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {showDigest && <DigestSettings onClose={() => setShowDigest(false)} />}
     </div>
   );
 }

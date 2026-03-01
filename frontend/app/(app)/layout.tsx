@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { logout } from '@/app/auth/actions';
 import MobileMenu from '@/components/MobileMenu';
 import NavItem from '@/components/NavItem';
+import ThemeToggle from '@/components/ThemeToggle';
 import '../mobile.css';
 
 export default async function AppLayout({
@@ -20,6 +21,10 @@ export default async function AppLayout({
         { href: '/visits', icon: '🎙️', label: 'Store Visits' },
         { href: '/pos', icon: '📊', label: 'POS Analysis' },
         { href: '/training', icon: '📖', label: 'Training' },
+        { href: '/templates', icon: '📋', label: 'Templates' },
+        { href: '/goals', icon: '🎯', label: 'Goals & KPIs' },
+        { href: '/territory', icon: '🗺️', label: 'Territory Map' },
+        { href: '/leaderboard', icon: '🏆', label: 'Leaderboard' },
         { href: '/integrations', icon: '🔗', label: 'Integrations' },
         { href: '/billing', icon: '💳', label: 'Billing' },
     ];
@@ -58,6 +63,9 @@ export default async function AppLayout({
                         />
                     </div>
                 </nav>
+
+                {/* Theme Toggle */}
+                <ThemeToggle />
 
                 {/* User Menu */}
                 <div className="user-menu">

@@ -1,13 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { authenticatedFetch } from '@/lib/api';
 import toast from 'react-hot-toast';
+import ExportPDF from '@/components/ExportPDF';
+import VoiceInput from '@/components/VoiceInput';
 
 export default function StoreVisits() {
     const [transcript, setTranscript] = useState('');
     const [report, setReport] = useState<any>(null);
     const [loading, setLoading] = useState(false);
+    const reportRef = useRef<HTMLDivElement>(null);
 
     const handleProcess = async () => {
         if (!transcript || transcript.trim().length < 10) {
@@ -70,18 +73,22 @@ export default function StoreVisits() {
                     >
                         {loading ? 'AI analyzing...' : 'Generate Intelligence Report'}
                     </button>
-                    <button className="btn-icon" aria-label="Record voice note">
-                        🎙️
-                    </button>
+                    <VoiceInput
+                        onTranscript={(text) => setTranscript(prev => prev ? prev + ' ' + text : text)}
+                        disabled={loading}
+                    />
                 </div>
             </div>
 
             {report && (
-                <div style={{ animation: 'slideUp 0.6s ease-out both' }}>
+                <div style={{ animation: 'slideUp 0.6s ease-out both' }} ref={reportRef}>
                     <div className="card" style={{ borderLeft: '5px solid var(--primary)' }}>
                         <div className="card-header" style={{ marginBottom: '2rem', alignItems: 'center' }}>
                             <h2 style={{ fontSize: '1.75rem', fontWeight: 800 }}>AI Strategic Report</h2>
-                            <span className="vision-ref">REF: #GPT4-REP-01</span>
+                            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                                <ExportPDF targetRef={reportRef} filename="Store-Visit-Report" label="Export" />
+                                <span className="vision-ref">REF: #GPT4-REP-01</span>
+                            </div>
                         </div>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>

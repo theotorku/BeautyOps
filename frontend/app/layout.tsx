@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "./mobile.css";
 import ToastProvider from "@/components/ToastProvider";
+import ThemeProvider from "@/components/ThemeProvider";
 
 export const metadata: Metadata = {
   title: "BeautyOps AI | AI Workflow Engine for Beauty AEs",
@@ -29,11 +30,13 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <a href="#main-content" className="skip-to-content">
-          Skip to main content
-        </a>
-        {children}
-        <ToastProvider />
+        <ThemeProvider>
+          <a href="#main-content" className="skip-to-content">
+            Skip to main content
+          </a>
+          {children}
+          <ToastProvider />
+        </ThemeProvider>
       </body>
     </html>
   );

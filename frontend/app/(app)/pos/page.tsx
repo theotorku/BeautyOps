@@ -1,13 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { authenticatedFetch } from '@/lib/api';
 import toast from 'react-hot-toast';
+import ExportPDF from '@/components/ExportPDF';
 
 export default function POSAnalysis() {
     const [file, setFile] = useState<File | null>(null);
     const [analysis, setAnalysis] = useState<any>(null);
     const [loading, setLoading] = useState(false);
+    const analysisRef = useRef<HTMLDivElement>(null);
 
     const handleUpload = async () => {
         if (!file) return;
@@ -64,7 +66,10 @@ export default function POSAnalysis() {
             </div>
 
             {analysis && (
-                <div className="grid" style={{ animation: 'slideUp 0.6s ease-out both' }}>
+                <div className="grid" style={{ animation: 'slideUp 0.6s ease-out both' }} ref={analysisRef}>
+                    <div className="card card-full" style={{ marginBottom: '0.5rem' }}>
+                        <ExportPDF targetRef={analysisRef} filename="POS-Analysis" label="Export Analysis" />
+                    </div>
                     <div className="card">
                         <h3 className="card-title" style={{ color: 'var(--primary)', marginBottom: '1rem' }}>Top Sellers</h3>
                         <ul className="report-list">
