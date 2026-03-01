@@ -1,18 +1,22 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic_settings import BaseSettings
-from typing import List, Optional
 import os
+import logging
 from dotenv import load_dotenv
 
 load_dotenv()
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
+
 class Settings(BaseSettings):
     app_name: str = "BeautyOps AI"
-    admin_email: str = "admin@beautyops.ai"
-    supabase_url: str = os.getenv("SUPABASE_URL", "")
-    supabase_key: str = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
-    openai_api_key: str = os.getenv("OPENAI_API_KEY", "")
+    admin_email: str = os.getenv("ADMIN_EMAIL", "admin@beautyops.ai")
 
 settings = Settings()
 
@@ -20,22 +24,21 @@ from routers import visits, pos, extra_features, usage, calendar, vision, billin
 
 app = FastAPI(title=settings.app_name)
 
-# CORS Configuration
+# CORS Configuration - restrict to known origins and specific methods/headers
 frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
-allowed_origins = [
+allowed_origins = list(set([
     "http://localhost:3000",
     "https://beautyop.io",
     "https://www.beautyop.io",
-    "https://beauty-ops.vercel.app",  # Legacy Vercel domain (can remove after migration)
     frontend_url
-]
+]))
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 app.include_router(visits.router, prefix="/api/visits", tags=["Visits"])
@@ -54,7 +57,3 @@ async def root():
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
-
-# Future routers will be included here
-# app.include_router(visits.router, prefix="/api/visits", tags=["Visits"])
-# app.include_router(pos.router, prefix="/api/pos", tags=["POS"])

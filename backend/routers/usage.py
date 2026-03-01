@@ -1,3 +1,5 @@
+import logging
+logger = logging.getLogger(__name__)
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from typing import Dict, Optional
@@ -147,7 +149,7 @@ def check_access(user_id: str, feature: str) -> bool:
 
     except Exception as e:
         # If database query fails, default to allowing access (fail open)
-        print(f"Error checking access for user {user_id}, feature {feature}: {str(e)}")
+        logger.error(f"Error checking access for user {user_id}, feature {feature}: {e}")
         return True
 
 
@@ -163,7 +165,7 @@ def record_usage(user_id: str, feature: str, count: int = 1):
             "created_at": datetime.now().isoformat()
         }).execute()
     except Exception as e:
-        print(f"Error recording usage for user {user_id}, feature {feature}: {str(e)}")
+        logger.error(f"Error recording usage for user {user_id}, feature {feature}: {e}")
 
 
 def require_access(feature: str):

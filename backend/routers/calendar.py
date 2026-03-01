@@ -1,3 +1,5 @@
+import uuid
+import logging
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 from typing import List, Optional, Dict
@@ -8,6 +10,7 @@ import httpx
 from datetime import datetime, timedelta
 from db import supabase
 import secrets
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -95,10 +98,12 @@ async def oauth_callback(provider: str, code: str, state: str):
     Handle OAuth callback and exchange authorization code for access token.
     Stores tokens in user_integrations table.
     """
-    # Extract user_id from state parameter
+    # Extract and validate user_id from state parameter
     try:
         user_id, _ = state.split(":", 1)
-    except ValueError:
+        # Validate user_id is a valid UUID
+        uuid.UUID(user_id)
+    except (ValueError, AttributeError):
         raise HTTPException(status_code=400, detail="Invalid state parameter")
 
     if provider == "google":
@@ -119,7 +124,8 @@ async def oauth_callback(provider: str, code: str, state: str):
             )
 
         if token_response.status_code != 200:
-            raise HTTPException(status_code=400, detail=f"Failed to exchange code for token: {token_response.text}")
+            logger.error(f"OAuth token exchange failed: {token_response.text}")
+            raise HTTPException(status_code=400, detail="Failed to exchange authorization code")
 
         token_data = token_response.json()
         access_token = token_data["access_token"]
@@ -146,7 +152,8 @@ async def oauth_callback(provider: str, code: str, state: str):
             )
 
         if token_response.status_code != 200:
-            raise HTTPException(status_code=400, detail=f"Failed to exchange code for token: {token_response.text}")
+            logger.error(f"OAuth token exchange failed: {token_response.text}")
+            raise HTTPException(status_code=400, detail="Failed to exchange authorization code")
 
         token_data = token_response.json()
         access_token = token_data["access_token"]
@@ -193,7 +200,7 @@ async def oauth_callback(provider: str, code: str, state: str):
         }
 
     except Exception as e:
-        print(f"Error storing integration: {e}")
+        logger.error(f"Error storing integration: {e}")
         raise HTTPException(status_code=500, detail="Failed to store calendar integration")
 
 async def refresh_access_token(integration: dict) -> Optional[str]:
@@ -205,7 +212,7 @@ async def refresh_access_token(integration: dict) -> Optional[str]:
     refresh_token = integration.get("refresh_token")
 
     if not refresh_token:
-        print(f"No refresh token available for {provider}")
+        logger.warning(f"No refresh token available for {provider}")
         return None
 
     try:
@@ -268,7 +275,7 @@ async def refresh_access_token(integration: dict) -> Optional[str]:
                 return new_access_token
 
     except Exception as e:
-        print(f"Error refreshing token for {provider}: {e}")
+        logger.error(f"Error refreshing token for {provider}: {e}")
         return None
 
     return None
@@ -284,7 +291,7 @@ async def get_valid_access_token(integration: dict) -> Optional[str]:
 
     # Check if token is expired or will expire in next 5 minutes
     if datetime.now() >= expires_at - timedelta(minutes=5):
-        print(f"Token expired for {integration['provider']}, attempting refresh...")
+        logger.info(f"Token expired for {integration['provider']}, attempting refresh...")
         new_token = await refresh_access_token(integration)
         if new_token:
             return new_token
@@ -330,7 +337,7 @@ async def get_integration_status(user: Dict = Depends(get_current_user)):
         return statuses
 
     except Exception as e:
-        print(f"Error fetching integration status: {e}")
+        logger.error(f"Error fetching integration status: {e}")
         # Return default disconnected status
         return [
             IntegrationStatus(provider="google", connected=False),
@@ -354,7 +361,7 @@ async def disconnect_calendar(provider: str, user: Dict = Depends(get_current_us
         }
 
     except Exception as e:
-        print(f"Error disconnecting calendar: {e}")
+        logger.error(f"Error disconnecting calendar: {e}")
         raise HTTPException(status_code=500, detail="Failed to disconnect calendar")
 
 @router.get("/events", response_model=List[Event])
@@ -390,7 +397,7 @@ async def _fetch_calendar_events(user_id: str, start_date: Optional[str] = None,
             # Get valid access token (refreshes if needed)
             access_token = await get_valid_access_token(integration)
             if not access_token:
-                print(f"Unable to get valid token for {provider}, skipping...")
+                logger.warning(f"Unable to get valid token for {provider}, skipping...")
                 continue
 
             if provider == "google":
@@ -452,7 +459,7 @@ async def _fetch_calendar_events(user_id: str, start_date: Optional[str] = None,
         return all_events
 
     except Exception as e:
-        print(f"Error fetching events: {e}")
+        logger.error(f"Error fetching events: {e}")
         return []
 
 @router.get("/proactive-briefing")
@@ -531,7 +538,7 @@ Generate a tactical briefing:""")
                 ai_briefing = response.content.strip()
 
             except Exception as ai_error:
-                print(f"AI briefing generation failed: {ai_error}")
+                logger.warning(f"AI briefing generation failed: {ai_error}")
                 # Fallback briefing
                 if related_visits:
                     ai_briefing = f"Follow up on items from your last visit on {related_visits[0].get('created_at', 'recently')}. Review POS data and check stock levels for top-selling SKUs."
@@ -576,12 +583,10 @@ Generate a tactical briefing:""")
         }
 
     except Exception as e:
-        print(f"Error generating briefing: {e}")
-        import traceback
-        traceback.print_exc()
+        logger.error(f"Error generating briefing: {e}")
         return {
             "summary": "Unable to generate briefing at this time.",
-            "error": str(e),
+            "error": "Unable to generate briefing",
             "briefings": [],
             "recommendations": []
         }

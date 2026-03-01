@@ -1,11 +1,18 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Dict
 import os
 import base64
+import logging
 from openai import OpenAI
+from middleware.auth import get_current_user
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+MAX_FILE_SIZE = 20 * 1024 * 1024  # 20MB
+ALLOWED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
 
 class VisionResponse(BaseModel):
     analysis: str
@@ -13,18 +20,32 @@ class VisionResponse(BaseModel):
     tactical_suggestion: str
 
 @router.post("/analyze-shelf", response_model=VisionResponse)
-async def analyze_shelf(file: UploadFile = File(...)):
+async def analyze_shelf(file: UploadFile = File(...), user: Dict = Depends(get_current_user)):
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
         raise HTTPException(status_code=500, detail="OpenAI API Key not configured")
-    
+
+    # Validate file type
+    filename = file.filename or ""
+    ext = os.path.splitext(filename)[1].lower()
+    if ext not in ALLOWED_IMAGE_EXTENSIONS:
+        raise HTTPException(status_code=400, detail="File type not allowed. Accepted: .jpg, .jpeg, .png, .webp, .gif")
+
+    # Read and validate size
+    contents = await file.read()
+    if len(contents) > MAX_FILE_SIZE:
+        raise HTTPException(status_code=413, detail="File too large. Maximum size is 20MB.")
+    if len(contents) == 0:
+        raise HTTPException(status_code=400, detail="File is empty")
+
     client = OpenAI(api_key=api_key)
-    
+
     try:
-        # Read file and encode to base64
-        contents = await file.read()
         base64_image = base64.b64encode(contents).decode('utf-8')
-        
+
+        mime_types = {".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".webp": "image/webp", ".gif": "image/gif"}
+        mime_type = mime_types.get(ext, "image/jpeg")
+
         response = client.chat.completions.create(
             model="gpt-4o",
             messages=[
@@ -39,7 +60,7 @@ async def analyze_shelf(file: UploadFile = File(...)):
                         {
                             "type": "image_url",
                             "image_url": {
-                                "url": f"data:image/jpeg;base64,{base64_image}"
+                                "url": f"data:{mime_type};base64,{base64_image}"
                             }
                         }
                     ]
@@ -47,15 +68,14 @@ async def analyze_shelf(file: UploadFile = File(...)):
             ],
             max_tokens=500
         )
-        
+
         full_text = response.choices[0].message.content
-        
-        # In a real app, we'd use structured output or a secondary agent call to parse this
-        # For this prototype, we'll return the full analysis with mock categories
+
         return VisionResponse(
             analysis=full_text,
-            competitors_detected=["Competitor X", "Competitor Y"], # Placeholder
-            tactical_suggestion="Pivot to Hydra-Silk pitching due to competitor stock gaps detected." # Placeholder
+            competitors_detected=["Competitor X", "Competitor Y"],
+            tactical_suggestion="Pivot to Hydra-Silk pitching due to competitor stock gaps detected."
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Shelf analysis failed for user {user['user_id']}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to analyze shelf image")

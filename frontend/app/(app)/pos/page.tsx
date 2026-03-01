@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { API_URL } from '@/lib/config';
+import { authenticatedFetch } from '@/lib/api';
+import toast from 'react-hot-toast';
 
 export default function POSAnalysis() {
     const [file, setFile] = useState<File | null>(null);
@@ -10,35 +11,46 @@ export default function POSAnalysis() {
 
     const handleUpload = async () => {
         if (!file) return;
-        setLoading(true);
-        const formData = new FormData();
-        formData.append('file', file);
 
+        setLoading(true);
+        const loadingToast = toast.loading('AI is crunching your sales data...');
         try {
-            const res = await fetch(`${API_URL}/api/pos/analyze`, {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const res = await authenticatedFetch('/api/pos/analyze', {
                 method: 'POST',
                 body: formData,
             });
+
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.detail || 'Failed to analyze POS data');
+            }
+
             const data = await res.json();
             setAnalysis(data);
-        } catch (err) {
-            console.error(err);
+            toast.dismiss(loadingToast);
+            toast.success('POS analysis complete!');
+        } catch (err: any) {
+            toast.dismiss(loadingToast);
+            toast.error(err.message || 'Analysis failed. Please check your file and try again.');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div style={{ maxWidth: '900px' }}>
+        <div style={{ maxWidth: '900px', animation: 'fadeIn 0.8s ease-out' }}>
             <h1>POS Sales Insights</h1>
-            <p style={{ opacity: 0.6, marginBottom: '2rem' }}>Upload your weekly POS spreadsheet for AI-driven recommendations.</p>
+            <p className="page-subtitle">Upload your weekly POS spreadsheet for AI-driven recommendations.</p>
 
-            <div className="card" style={{ marginBottom: '2rem' }}>
-                <h3>Upload Spreadsheet</h3>
-                <p style={{ fontSize: '0.8rem', opacity: 0.5, marginBottom: '1rem' }}>Supports .csv files (XLSX support coming soon)</p>
+            <div className="card card-animated" style={{ marginBottom: '2rem' }}>
+                <h3 className="card-title">Upload Spreadsheet</h3>
+                <p style={{ fontSize: '0.8rem', opacity: 0.5, marginBottom: '1rem', marginTop: '0.5rem' }}>Supports .csv and .xlsx files</p>
                 <input
                     type="file"
-                    accept=".csv"
+                    accept=".csv,.xlsx,.xls"
                     onChange={(e) => setFile(e.target.files?.[0] || null)}
                     style={{ marginBottom: '1rem' }}
                 />
@@ -52,22 +64,22 @@ export default function POSAnalysis() {
             </div>
 
             {analysis && (
-                <div className="grid">
+                <div className="grid" style={{ animation: 'slideUp 0.6s ease-out both' }}>
                     <div className="card">
-                        <h3 style={{ color: 'var(--primary)', marginBottom: '1rem' }}>Top Sellers</h3>
-                        <ul style={{ paddingLeft: '1.2rem', opacity: 0.8 }}>
+                        <h3 className="card-title" style={{ color: 'var(--primary)', marginBottom: '1rem' }}>Top Sellers</h3>
+                        <ul className="report-list">
                             {analysis.top_sellers.map((item: string, i: number) => <li key={i}>{item}</li>)}
                         </ul>
                     </div>
                     <div className="card">
-                        <h3 style={{ color: 'var(--primary)', marginBottom: '1rem' }}>Growth Opportunities</h3>
-                        <ul style={{ paddingLeft: '1.2rem', opacity: 0.8 }}>
+                        <h3 className="card-title" style={{ color: 'var(--primary)', marginBottom: '1rem' }}>Growth Opportunities</h3>
+                        <ul className="report-list">
                             {analysis.recommendations.map((item: string, i: number) => <li key={i}>{item}</li>)}
                         </ul>
                     </div>
-                    <div className="card" style={{ gridColumn: '1 / -1' }}>
-                        <h3 style={{ color: 'var(--primary)', marginBottom: '1rem' }}>Market Trends</h3>
-                        <ul style={{ paddingLeft: '1.2rem', opacity: 0.8 }}>
+                    <div className="card card-full">
+                        <h3 className="card-title" style={{ color: 'var(--primary)', marginBottom: '1rem' }}>Market Trends</h3>
+                        <ul className="report-list">
                             {analysis.trends.map((item: string, i: number) => <li key={i}>{item}</li>)}
                         </ul>
                     </div>

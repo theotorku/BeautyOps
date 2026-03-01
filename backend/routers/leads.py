@@ -1,12 +1,16 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, EmailStr
-from typing import Optional, List
+from typing import Optional, List, Dict
 import os
+import logging
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail, Email, To, Content
 from datetime import datetime
-from db import supabase  # Use shared Supabase client from db.py
+from db import supabase
 from services.template_generator import get_template_generator
+from middleware.auth import get_current_user
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -80,7 +84,7 @@ async def capture_lead(request: LeadCaptureRequest):
 
         except Exception as email_error:
             # Log error but don't fail the request
-            print(f"SendGrid error: {email_error}")
+            logger.error(f"SendGrid error: {email_error}")
 
             # Still return success since lead was captured
             return {
@@ -91,7 +95,7 @@ async def capture_lead(request: LeadCaptureRequest):
             }
 
     except Exception as e:
-        print(f"Lead capture error: {e}")
+        logger.error(f"Lead capture error: {e}")
         raise HTTPException(status_code=500, detail="Failed to process your request. Please try again.")
 
 
@@ -113,7 +117,7 @@ async def send_template_email(
         experience_level: Experience level (beginner, intermediate, advanced)
     """
     if not SENDGRID_API_KEY:
-        print("Warning: SENDGRID_API_KEY not set. Email not sent.")
+        logger.warning("SENDGRID_API_KEY not set. Email not sent.")
         return
 
     # Generate AI-powered template
@@ -134,7 +138,7 @@ async def send_template_email(
         subject = f"Your Personalized {industry.title()} Store Visit Template - BeautyOps AI"
 
     except Exception as e:
-        print(f"AI template generation failed: {e}. Falling back to static template.")
+        logger.warning(f"AI template generation failed: {e}. Using fallback template.")
         # Fallback to static template if AI fails
         subject = "Your Free Store Visit Template - BeautyOps AI"
         html_content = get_fallback_html_template()
@@ -334,17 +338,24 @@ def get_fallback_text_template() -> str:
 
 
 @router.get("/leads")
-async def get_leads():
+async def get_leads(user: Dict = Depends(get_current_user), page: int = 1, limit: int = 50):
     """
-    Get all captured leads (admin only - add auth later).
+    Get all captured leads (authenticated, admin only).
     """
+    admin_email = os.getenv("ADMIN_EMAIL", "admin@beautyops.ai")
+    if user.get("email") != admin_email:
+        raise HTTPException(status_code=403, detail="Admin access required")
+
     try:
-        leads = supabase.table("leads").select("*").order("created_at", desc=True).execute()
+        offset = (page - 1) * limit
+        leads = supabase.table("leads").select("*", count="exact").order("created_at", desc=True).range(offset, offset + limit - 1).execute()
         return {
             "success": True,
             "leads": leads.data,
-            "total": len(leads.data) if leads.data else 0
+            "total": leads.count if leads.count else 0,
+            "page": page,
+            "limit": limit
         }
     except Exception as e:
-        print(f"Error fetching leads: {e}")
+        logger.error(f"Error fetching leads: {e}")
         raise HTTPException(status_code=500, detail="Failed to fetch leads")

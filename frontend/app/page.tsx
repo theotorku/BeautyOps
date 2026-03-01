@@ -314,7 +314,7 @@ export default function LandingPage() {
           </div>
         </div>
         <div className="footer-bottom">
-          © 2025 BeautyOps AI. All rights reserved.
+          © 2026 BeautyOps AI. All rights reserved.
         </div>
       </footer>
     </div>

@@ -37,7 +37,7 @@ export default function SignupPage() {
         });
 
         if (error) {
-            setError(error.message);
+            setError('Unable to create account. Please check your details and try again.');
             setLoading(false);
         } else {
             router.push('/dashboard');

@@ -1,12 +1,15 @@
-from fastapi import APIRouter, HTTPException, Request, Header
+from fastapi import APIRouter, HTTPException, Request, Header, Depends
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, Dict
 from services.stripe_service import stripe_service
 from middleware.auth import get_current_user
 from datetime import datetime
 import stripe
 import os
+import logging
 from db import supabase
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -14,22 +17,17 @@ router = APIRouter()
 # Request/Response Models
 class CheckoutRequest(BaseModel):
     price_id: str
-    user_id: str
     email: str
-
-
-class PortalRequest(BaseModel):
-    user_id: str
 
 
 # Endpoints
 @router.post("/create-checkout-session")
-async def create_checkout_session(request: CheckoutRequest):
+async def create_checkout_session(request: CheckoutRequest, user: Dict = Depends(get_current_user)):
     """Create Stripe Checkout session for new subscription"""
     try:
         frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
         session_url = await stripe_service.create_checkout_session(
-            user_id=request.user_id,
+            user_id=user["user_id"],
             email=request.email,
             price_id=request.price_id,
             success_url=f"{frontend_url}/billing?success=true",
@@ -37,45 +35,53 @@ async def create_checkout_session(request: CheckoutRequest):
         )
         return {"url": session_url}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Checkout session creation failed: {e}")
+        raise HTTPException(status_code=500, detail="Failed to create checkout session")
 
 
 @router.post("/create-portal-session")
-async def create_portal_session(request: PortalRequest):
+async def create_portal_session(user: Dict = Depends(get_current_user)):
     """Create Stripe Customer Portal session for subscription management"""
     try:
         frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
         portal_url = await stripe_service.create_portal_session(
-            user_id=request.user_id,
+            user_id=user["user_id"],
             return_url=f"{frontend_url}/billing"
         )
         return {"url": portal_url}
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+    except ValueError:
+        raise HTTPException(status_code=404, detail="Customer not found")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Portal session creation failed: {e}")
+        raise HTTPException(status_code=500, detail="Failed to create portal session")
 
 
 @router.get("/subscription/{user_id}")
-async def get_subscription(user_id: str):
+async def get_subscription(user_id: str, user: Dict = Depends(get_current_user)):
     """Get current subscription details for user"""
+    if user["user_id"] != user_id:
+        raise HTTPException(status_code=403, detail="Not authorized to view this subscription")
     try:
         subscription = await stripe_service.get_subscription(user_id)
         if not subscription:
             return {"subscription": None, "status": "none"}
         return {"subscription": subscription}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Subscription fetch failed for user {user_id}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch subscription")
 
 
 @router.get("/invoices/{user_id}")
-async def get_invoices(user_id: str, limit: int = 12):
+async def get_invoices(user_id: str, limit: int = 12, user: Dict = Depends(get_current_user)):
     """Get billing history for user"""
+    if user["user_id"] != user_id:
+        raise HTTPException(status_code=403, detail="Not authorized to view these invoices")
     try:
         invoices = await stripe_service.get_invoices(user_id, limit)
         return {"invoices": invoices}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Invoice fetch failed for user {user_id}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch invoices")
 
 
 @router.post("/webhook")
@@ -84,6 +90,9 @@ async def stripe_webhook(request: Request, stripe_signature: str = Header(None))
     webhook_secret = os.getenv("STRIPE_WEBHOOK_SECRET")
     if not webhook_secret:
         raise HTTPException(status_code=500, detail="Webhook secret not configured")
+
+    if not stripe_signature:
+        raise HTTPException(status_code=400, detail="Missing stripe-signature header")
 
     payload = await request.body()
 
@@ -133,7 +142,8 @@ async def stripe_webhook(request: Request, stripe_signature: str = Header(None))
         supabase.table("stripe_webhook_events").update({
             "error_message": str(e)
         }).eq("stripe_event_id", event.id).execute()
-        raise HTTPException(status_code=500, detail=f"Webhook processing error: {str(e)}")
+        logger.error(f"Webhook processing error for event {event.id}: {e}")
+        raise HTTPException(status_code=500, detail="Webhook processing error")
 
 
 # Webhook Event Handlers
@@ -141,7 +151,7 @@ async def handle_subscription_created(subscription):
     """Handle new subscription creation"""
     user_id = subscription.metadata.get("user_id")
     if not user_id:
-        print(f"Warning: No user_id in subscription metadata: {subscription.id}")
+        logger.warning(f"No user_id in subscription metadata: {subscription.id}")
         return
 
     # Map price IDs to tiers
@@ -219,7 +229,7 @@ async def handle_invoice_payment_succeeded(invoice):
     # Find user from customer
     customer = supabase.table("stripe_customers").select("user_id").eq("stripe_customer_id", invoice.customer).execute()
     if not customer.data:
-        print(f"Warning: No user found for customer: {invoice.customer}")
+        logger.warning(f"No user found for customer: {invoice.customer}")
         return
 
     user_id = customer.data[0]["user_id"]
@@ -241,7 +251,7 @@ async def handle_invoice_payment_succeeded(invoice):
 async def handle_invoice_payment_failed(invoice):
     """Handle failed payment"""
     # Log the failure
-    print(f"Payment failed for invoice: {invoice.id}, customer: {invoice.customer}")
+    logger.warning(f"Payment failed for invoice: {invoice.id}, customer: {invoice.customer}")
     # TODO: Send email notification to user
     # TODO: Update subscription status if needed
 

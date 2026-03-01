@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { API_URL } from '@/lib/config';
 import { createClient } from '@/lib/supabase/client';
+import { authenticatedFetch } from '@/lib/api';
 import toast from 'react-hot-toast';
 import { CardSkeleton } from '@/components/LoadingSkeleton';
 import { NoInvoicesState } from '@/components/EmptyState';
@@ -31,17 +32,17 @@ export default function BillingPage() {
         setLoading(true);
         try {
             // Fetch subscription
-            const subRes = await fetch(`${API_URL}/api/billing/subscription/${user.id}`);
+            const subRes = await authenticatedFetch(`/api/billing/subscription/${user.id}`);
             const subData = await subRes.json();
             setSubscription(subData.subscription);
 
             // Fetch usage
-            const usageRes = await fetch(`${API_URL}/api/usage/stats?user_id=${user.id}`);
+            const usageRes = await authenticatedFetch(`/api/usage/stats?user_id=${user.id}`);
             const usageData = await usageRes.json();
             setUsage(usageData);
 
             // Fetch invoices
-            const invoicesRes = await fetch(`${API_URL}/api/billing/invoices/${user.id}`);
+            const invoicesRes = await authenticatedFetch(`/api/billing/invoices/${user.id}`);
             const invoicesData = await invoicesRes.json();
             setInvoices(invoicesData.invoices || []);
         } catch (error) {
@@ -58,12 +59,11 @@ export default function BillingPage() {
         setActionLoading(true);
         const loadingToast = toast.loading('Creating checkout session...');
         try {
-            const res = await fetch(`${API_URL}/api/billing/create-checkout-session`, {
+            const res = await authenticatedFetch('/api/billing/create-checkout-session', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     price_id: priceId,
-                    user_id: user.id,
                     email: user.email
                 })
             });
@@ -85,10 +85,8 @@ export default function BillingPage() {
         setActionLoading(true);
         const loadingToast = toast.loading('Opening subscription portal...');
         try {
-            const res = await fetch(`${API_URL}/api/billing/create-portal-session`, {
+            const res = await authenticatedFetch('/api/billing/create-portal-session', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ user_id: user.id })
             });
             const data = await res.json();
             toast.dismiss(loadingToast);
@@ -150,29 +148,12 @@ export default function BillingPage() {
             </p>
 
             {/* Tabs */}
-            <div style={{
-                display: 'flex',
-                gap: '1rem',
-                marginBottom: '2rem',
-                borderBottom: '1px solid var(--glass-border)',
-                paddingBottom: '0.5rem'
-            }}>
+            <div className="tab-bar">
                 {(['subscription', 'usage', 'payment', 'history'] as Tab[]).map((tab) => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
-                        style={{
-                            background: activeTab === tab ? 'var(--primary-gradient)' : 'transparent',
-                            color: activeTab === tab ? '#000' : 'var(--foreground)',
-                            border: 'none',
-                            padding: '0.75rem 1.5rem',
-                            fontSize: '0.95rem',
-                            textTransform: 'capitalize',
-                            cursor: 'pointer',
-                            borderRadius: '8px',
-                            transition: 'var(--transition)',
-                            fontWeight: activeTab === tab ? '700' : '400'
-                        }}
+                        className={`tab-btn ${activeTab === tab ? 'active' : ''}`}
                     >
                         {tab}
                     </button>
@@ -463,39 +444,17 @@ export default function BillingPage() {
                     ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                             {invoices.map((invoice) => (
-                                <div
-                                    key={invoice.id}
-                                    style={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center',
-                                        padding: '1.25rem',
-                                        background: 'rgba(255,255,255,0.03)',
-                                        borderRadius: '12px',
-                                        border: '1px solid var(--glass-border)',
-                                        transition: 'var(--transition)',
-                                        flexWrap: 'wrap',
-                                        gap: '1rem'
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.borderColor = 'var(--primary)';
-                                        e.currentTarget.style.transform = 'translateY(-2px)';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.borderColor = 'var(--glass-border)';
-                                        e.currentTarget.style.transform = 'translateY(0)';
-                                    }}
-                                >
+                                <div key={invoice.id} className="invoice-item">
                                     <div>
-                                        <p style={{ fontWeight: '700', marginBottom: '0.5rem', fontSize: '1.05rem' }}>
+                                        <p style={{ fontWeight: 700, marginBottom: '0.5rem', fontSize: '1.05rem' }}>
                                             {new Date(invoice.period_start).toLocaleDateString()} - {new Date(invoice.period_end).toLocaleDateString()}
                                         </p>
                                         <p style={{ fontSize: '0.9rem', opacity: 0.6 }}>
-                                            Status: <span style={{ color: invoice.status === 'paid' ? '#4ade80' : '#f87171', fontWeight: '600' }}>{invoice.status}</span>
+                                            Status: <span className={invoice.status === 'paid' ? 'status-paid' : 'status-failed'}>{invoice.status}</span>
                                         </p>
                                     </div>
                                     <div style={{ textAlign: 'right' }}>
-                                        <p style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '0.5rem', background: 'var(--primary-gradient)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                                        <p className="invoice-amount">
                                             ${(invoice.amount_paid / 100).toFixed(2)}
                                         </p>
                                         {invoice.invoice_pdf && (
@@ -503,7 +462,7 @@ export default function BillingPage() {
                                                 href={invoice.invoice_pdf}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                style={{ fontSize: '0.9rem', color: 'var(--primary)', textDecoration: 'none', fontWeight: '600' }}
+                                                style={{ fontSize: '0.9rem', color: 'var(--primary)', textDecoration: 'none', fontWeight: 600 }}
                                             >
                                                 Download PDF ↗
                                             </a>

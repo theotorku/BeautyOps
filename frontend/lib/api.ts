@@ -13,12 +13,24 @@ export async function authenticatedFetch(endpoint: string, options: RequestInit 
         throw new Error('No active session');
     }
 
+    const headers: Record<string, string> = {
+        'Authorization': `Bearer ${session.access_token}`,
+    };
+
+    // Only set Content-Type for non-FormData requests
+    // FormData sets its own Content-Type with boundary
+    if (!(options.body instanceof FormData)) {
+        headers['Content-Type'] = 'application/json';
+    }
+
+    // Merge with any existing headers from options
+    const existingHeaders = options.headers as Record<string, string> || {};
+
     return fetch(`${API_URL}${endpoint}`, {
         ...options,
         headers: {
-            ...options.headers,
-            'Authorization': `Bearer ${session.access_token}`,
-            'Content-Type': 'application/json'
+            ...headers,
+            ...existingHeaders,
         }
     });
 }

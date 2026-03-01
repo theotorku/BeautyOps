@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { logout } from '@/app/auth/actions';
 import MobileMenu from '@/components/MobileMenu';
+import NavItem from '@/components/NavItem';
 import '../mobile.css';
 
 export default async function AppLayout({
@@ -29,27 +30,19 @@ export default async function AppLayout({
                 <div className="logo">BeautyOps AI</div>
                 <nav className="nav">
                     {navItems.map((item) => (
-                        <Link
+                        <NavItem
                             key={item.href}
                             href={item.href}
-                            className="nav-item"
-                        >
-                            <span>{item.icon}</span> {item.label}
-                        </Link>
+                            icon={item.icon}
+                            label={item.label}
+                        />
                     ))}
-                    <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid var(--glass-border)' }}>
-                        <Link
+                    <div className="nav-divider">
+                        <NavItem
                             href="/pricing"
-                            className="nav-item"
-                            style={{
-                                background: 'rgba(229, 185, 196, 0.05)',
-                                color: 'var(--primary)',
-                                opacity: 1,
-                                border: '1px solid var(--glass-border)'
-                            }}
-                        >
-                            <span>✨</span> Pricing Plans
-                        </Link>
+                            icon="✨"
+                            label="Pricing Plans"
+                        />
                     </div>
                 </nav>
 
@@ -68,7 +61,7 @@ export default async function AppLayout({
                     </form>
                 </div>
             </aside>
-            <main className="main-content">
+            <main className="main-content" id="main-content">
                 {children}
             </main>
         </div>

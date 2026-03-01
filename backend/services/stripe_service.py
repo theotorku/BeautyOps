@@ -1,10 +1,17 @@
 import stripe
 import os
+import logging
 from typing import Dict, Any, Optional, List
 from datetime import datetime
 from db import supabase
 
-stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
+logger = logging.getLogger(__name__)
+
+_stripe_key = os.getenv("STRIPE_SECRET_KEY")
+if not _stripe_key:
+    logger.warning("STRIPE_SECRET_KEY not set. Stripe features will not work.")
+else:
+    stripe.api_key = _stripe_key
 
 
 class StripeService:
