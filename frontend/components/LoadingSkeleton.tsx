@@ -13,26 +13,21 @@ export default function LoadingSkeleton({
     height,
     width,
 }: LoadingSkeletonProps) {
-    const getStyle = () => {
-        const baseStyle: React.CSSProperties = {
-            background: 'linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.03) 75%)',
-            backgroundSize: '200% 100%',
-            animation: 'shimmer 1.5s infinite',
-            borderRadius: variant === 'circle' ? '50%' : '12px',
-        };
-
+    const getClassName = () => {
         switch (variant) {
-            case 'card':
-                return { ...baseStyle, height: height || '200px', width: width || '100%' };
-            case 'text':
-                return { ...baseStyle, height: height || '1rem', width: width || '100%', marginBottom: '0.5rem' };
-            case 'circle':
-                return { ...baseStyle, height: height || '48px', width: width || '48px' };
-            case 'button':
-                return { ...baseStyle, height: height || '44px', width: width || '120px' };
-            default:
-                return baseStyle;
+            case 'card': return 'loading-skeleton loading-skeleton--card';
+            case 'text': return 'loading-skeleton loading-skeleton--text';
+            case 'circle': return 'loading-skeleton loading-skeleton--circle';
+            case 'button': return 'loading-skeleton loading-skeleton--button';
+            default: return 'loading-skeleton';
         }
+    };
+
+    const getOverrideStyle = () => {
+        const style: React.CSSProperties = {};
+        if (height) style.height = height;
+        if (width) style.width = width;
+        return style;
     };
 
     return (
@@ -40,22 +35,12 @@ export default function LoadingSkeleton({
             {Array.from({ length: count }).map((_, index) => (
                 <div
                     key={index}
-                    className="loading-skeleton"
-                    style={getStyle()}
+                    className={getClassName()}
+                    style={getOverrideStyle()}
                     aria-label="Loading..."
                     role="status"
                 />
             ))}
-            <style jsx>{`
-                @keyframes shimmer {
-                    0% {
-                        background-position: -200% 0;
-                    }
-                    100% {
-                        background-position: 200% 0;
-                    }
-                }
-            `}</style>
         </>
     );
 }
@@ -67,7 +52,7 @@ export function CardSkeleton({ count = 1 }: { count?: number }) {
                 <div key={index} className="card">
                     <LoadingSkeleton variant="text" height="24px" width="60%" />
                     <LoadingSkeleton variant="text" height="16px" width="100%" count={3} />
-                    <div style={{ marginTop: '1rem' }}>
+                    <div className="skeleton-card-footer">
                         <LoadingSkeleton variant="button" />
                     </div>
                 </div>
@@ -78,19 +63,9 @@ export function CardSkeleton({ count = 1 }: { count?: number }) {
 
 export function TableSkeleton({ rows = 5 }: { rows?: number }) {
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div className="skeleton-table-body">
             {Array.from({ length: rows }).map((_, index) => (
-                <div
-                    key={index}
-                    style={{
-                        display: 'flex',
-                        gap: '1rem',
-                        alignItems: 'center',
-                        padding: '1rem',
-                        background: 'rgba(255,255,255,0.02)',
-                        borderRadius: '12px',
-                    }}
-                >
+                <div key={index} className="skeleton-table-row">
                     <LoadingSkeleton variant="circle" height="40px" width="40px" />
                     <div style={{ flex: 1 }}>
                         <LoadingSkeleton variant="text" height="16px" width="80%" />

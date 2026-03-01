@@ -190,7 +190,7 @@ export default function LandingPage() {
           <div className="pricing-card">
             <div className="pricing-tier">Solo AE</div>
             <div className="pricing-price">$49<span>/mo</span></div>
-            <p style={{ opacity: 0.7, fontSize: '0.9rem', marginTop: '0.5rem', marginBottom: '1rem' }}>14-day free trial, then $49/month</p>
+            <p className="pricing-card-note">14-day free trial, then $49/month</p>
             <ul className="pricing-features">
               <li>✓ Unlimited store visit reports</li>
               <li>✓ 10 POS analysis credits</li>
@@ -203,7 +203,7 @@ export default function LandingPage() {
             <div className="pricing-badge">Most Popular</div>
             <div className="pricing-tier">Pro AE</div>
             <div className="pricing-price">$149<span>/mo</span></div>
-            <p style={{ opacity: 0.7, fontSize: '0.9rem', marginTop: '0.5rem', marginBottom: '1rem' }}>14-day free trial, then $149/month</p>
+            <p className="pricing-card-note">14-day free trial, then $149/month</p>
             <ul className="pricing-features">
               <li>✓ Everything in Solo</li>
               <li>✓ Unlimited POS analysis</li>
@@ -242,7 +242,6 @@ export default function LandingPage() {
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 required
                 disabled={submitting}
-                style={{ flex: 2 }}
               />
             </div>
             <div className="form-row">
@@ -250,7 +249,6 @@ export default function LandingPage() {
                 value={formData.industry}
                 onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
                 disabled={submitting}
-                style={{ flex: 1 }}
               >
                 <option value="beauty">Beauty</option>
                 <option value="luxury skincare">Luxury Skincare</option>
@@ -263,7 +261,6 @@ export default function LandingPage() {
                 value={formData.role}
                 onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                 disabled={submitting}
-                style={{ flex: 1 }}
               >
                 <option value="Account Executive">Account Executive</option>
                 <option value="Senior Account Executive">Senior AE</option>
@@ -276,18 +273,17 @@ export default function LandingPage() {
                 value={formData.experience_level}
                 onChange={(e) => setFormData({ ...formData, experience_level: e.target.value })}
                 disabled={submitting}
-                style={{ flex: 1 }}
               >
                 <option value="beginner">Beginner (0-2 years)</option>
                 <option value="intermediate">Intermediate (2-5 years)</option>
                 <option value="advanced">Advanced (5+ years)</option>
               </select>
             </div>
-            <button type="submit" className="btn-primary btn-large" disabled={submitting} style={{ width: '100%' }}>
-              {submitting ? '✨ Generating Your Template...' : '✨ Generate My Free Template'}
+            <button type="submit" className="btn-primary btn-large btn-full" disabled={submitting}>
+              {submitting ? 'Generating Your Template...' : 'Generate My Free Template'}
             </button>
-            <p style={{ fontSize: '0.85rem', opacity: 0.6, textAlign: 'center', marginTop: '0.5rem' }}>
-              Personalized by AI • Delivered instantly • No credit card required
+            <p className="form-disclaimer">
+              Personalized by AI. Delivered instantly. No credit card required.
             </p>
           </form>
         </div>

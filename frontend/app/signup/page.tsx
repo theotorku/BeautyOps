@@ -52,6 +52,7 @@ export default function SignupPage() {
                     <Link href="/" className="auth-logo">✨ BeautyOps AI</Link>
                     <h1>Create Account</h1>
                     <p>Start your free trial today</p>
+                    <p className="auth-serif-accent">Where beauty meets intelligence.</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="auth-form">

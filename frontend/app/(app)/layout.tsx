@@ -27,7 +27,10 @@ export default async function AppLayout({
         <div className="dashboard-layout">
             <MobileMenu />
             <aside className="sidebar">
-                <div className="logo">BeautyOps AI</div>
+                <div className="sidebar-brand">
+                    <div className="logo">BeautyOps AI</div>
+                    <span className="sidebar-edition">Intelligence Platform</span>
+                </div>
                 <nav className="nav">
                     {navItems.map((item) => (
                         <NavItem

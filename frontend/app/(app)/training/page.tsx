@@ -20,7 +20,6 @@ export default function TrainingGenerator() {
         try {
             const res = await authenticatedFetch('/api/features/generate-training', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ product_info: productInfo })
             });
 
@@ -54,7 +53,7 @@ export default function TrainingGenerator() {
                     value={productInfo}
                     onChange={(e) => setProductInfo(e.target.value)}
                 />
-                <button onClick={handleGenerate} disabled={loading || !productInfo} style={{ width: '100%', marginTop: '1rem' }}>
+                <button onClick={handleGenerate} disabled={loading || !productInfo} className="btn-full-mt">
                     {loading ? 'Designing Training...' : 'Generate Training Package'}
                 </button>
             </div>

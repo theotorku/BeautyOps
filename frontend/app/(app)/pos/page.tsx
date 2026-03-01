@@ -52,12 +52,12 @@ export default function POSAnalysis() {
                     type="file"
                     accept=".csv,.xlsx,.xls"
                     onChange={(e) => setFile(e.target.files?.[0] || null)}
-                    style={{ marginBottom: '1rem' }}
+                    className="file-input-spaced"
                 />
                 <button
                     onClick={handleUpload}
                     disabled={loading || !file}
-                    style={{ width: '100%' }}
+                    className="btn-full"
                 >
                     {loading ? 'Analyzing Data...' : 'Run Analysis'}
                 </button>

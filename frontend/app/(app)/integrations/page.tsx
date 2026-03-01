@@ -55,7 +55,6 @@ export default function IntegrationsPage() {
         setLoading(provider);
 
         try {
-            // Fetch OAuth URL from backend
             const response = await authenticatedFetch(`/api/calendar/auth-url/${provider}?user_id=${userId}`);
 
             if (!response.ok) {
@@ -63,8 +62,6 @@ export default function IntegrationsPage() {
             }
 
             const data = await response.json();
-
-            // Redirect to OAuth provider
             window.location.href = data.url;
         } catch (error) {
             console.error('Error connecting calendar:', error);
@@ -92,7 +89,6 @@ export default function IntegrationsPage() {
                 throw new Error('Failed to disconnect calendar');
             }
 
-            // Refresh statuses
             await fetchIntegrationStatuses(userId);
         } catch (error) {
             console.error('Error disconnecting calendar:', error);
@@ -113,40 +109,34 @@ export default function IntegrationsPage() {
     };
 
     return (
-        <div style={{ maxWidth: '1100px', animation: 'fadeIn 0.8s ease-out' }}>
+        <div className="page-container">
             <h1>Ecosystem Integrations</h1>
-            <p style={{ opacity: 0.6, marginBottom: '3rem', fontSize: '1.1rem' }}>
+            <p className="page-subtitle" style={{ marginBottom: '3rem' }}>
                 Seamlessly connect your business tools to fuel the AI Proactive Briefing engine.
             </p>
 
             <div className="grid">
                 <div className="card" style={{ animation: 'slideUp 0.6s ease-out both', animationDelay: '0.1s' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div className="integration-card-header">
                         <div>
-                            <h3 style={{ fontSize: '1.25rem' }}>Google Calendar</h3>
+                            <h3>Google Calendar</h3>
                             <p style={{ opacity: 0.5, fontSize: '0.9rem', marginTop: '0.5rem' }}>
                                 Sync store visits and training sessions.
                             </p>
                             {getStatus('google').connected && (
-                                <p style={{ fontSize: '0.85rem', color: 'var(--primary)', marginTop: '0.75rem' }}>
+                                <p className="integration-status-connected">
                                     ✓ Connected {getStatus('google').connected_at && `on ${formatDate(getStatus('google').connected_at)}`}
                                 </p>
                             )}
                         </div>
-                        <div style={{ fontSize: '2.5rem', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))' }}>📅</div>
+                        <div className="integration-card-icon">📅</div>
                     </div>
                     <div style={{ marginTop: '2rem' }}>
                         {getStatus('google').connected ? (
                             <button
                                 onClick={() => disconnectCalendar('google')}
                                 disabled={loading === 'google'}
-                                style={{
-                                    width: '100%',
-                                    background: 'rgba(255,0,0,0.1)',
-                                    border: '1px solid rgba(255,0,0,0.5)',
-                                    color: '#ff6b6b',
-                                    fontWeight: '700'
-                                }}
+                                className="btn-disconnect"
                             >
                                 {loading === 'google' ? 'Disconnecting...' : 'Disconnect'}
                             </button>
@@ -154,13 +144,7 @@ export default function IntegrationsPage() {
                             <button
                                 onClick={() => connectCalendar('google')}
                                 disabled={loading === 'google'}
-                                style={{
-                                    width: '100%',
-                                    background: 'rgba(255,255,255,0.03)',
-                                    border: '1px solid var(--primary)',
-                                    color: 'var(--primary)',
-                                    fontWeight: '700'
-                                }}
+                                className="btn-connect"
                             >
                                 {loading === 'google' ? 'Initializing OAuth...' : 'Connect Workspace Account'}
                             </button>
@@ -169,32 +153,26 @@ export default function IntegrationsPage() {
                 </div>
 
                 <div className="card" style={{ animation: 'slideUp 0.6s ease-out both', animationDelay: '0.2s' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div className="integration-card-header">
                         <div>
-                            <h3 style={{ fontSize: '1.25rem' }}>Outlook Calendar</h3>
+                            <h3>Outlook Calendar</h3>
                             <p style={{ opacity: 0.5, fontSize: '0.9rem', marginTop: '0.5rem' }}>
                                 Microsoft 365 enterprise AE sync.
                             </p>
                             {getStatus('outlook').connected && (
-                                <p style={{ fontSize: '0.85rem', color: 'var(--primary)', marginTop: '0.75rem' }}>
+                                <p className="integration-status-connected">
                                     ✓ Connected {getStatus('outlook').connected_at && `on ${formatDate(getStatus('outlook').connected_at)}`}
                                 </p>
                             )}
                         </div>
-                        <div style={{ fontSize: '2.5rem', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))' }}>📧</div>
+                        <div className="integration-card-icon">📧</div>
                     </div>
                     <div style={{ marginTop: '2rem' }}>
                         {getStatus('outlook').connected ? (
                             <button
                                 onClick={() => disconnectCalendar('outlook')}
                                 disabled={loading === 'outlook'}
-                                style={{
-                                    width: '100%',
-                                    background: 'rgba(255,0,0,0.1)',
-                                    border: '1px solid rgba(255,0,0,0.5)',
-                                    color: '#ff6b6b',
-                                    fontWeight: '700'
-                                }}
+                                className="btn-disconnect"
                             >
                                 {loading === 'outlook' ? 'Disconnecting...' : 'Disconnect'}
                             </button>
@@ -202,13 +180,7 @@ export default function IntegrationsPage() {
                             <button
                                 onClick={() => connectCalendar('outlook')}
                                 disabled={loading === 'outlook'}
-                                style={{
-                                    width: '100%',
-                                    background: 'rgba(255,255,255,0.03)',
-                                    border: '1px solid var(--primary)',
-                                    color: 'var(--primary)',
-                                    fontWeight: '700'
-                                }}
+                                className="btn-connect"
                             >
                                 {loading === 'outlook' ? 'Initializing OAuth...' : 'Connect M365 Account'}
                             </button>
@@ -216,22 +188,22 @@ export default function IntegrationsPage() {
                     </div>
                 </div>
 
-                <div className="card glass-morphism" style={{ opacity: 0.4, animation: 'slideUp 0.6s ease-out both', animationDelay: '0.3s' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className="card glass-morphism integration-card--coming-soon" style={{ animation: 'slideUp 0.6s ease-out both', animationDelay: '0.3s' }}>
+                    <div className="integration-card-header">
                         <div>
-                            <h3 style={{ fontSize: '1.25rem' }}>Salesforce CRM</h3>
+                            <h3>Salesforce CRM</h3>
                             <p style={{ opacity: 0.5, fontSize: '0.9rem', marginTop: '0.5rem' }}>
                                 Coming Soon: Direct Inventory Sync.
                             </p>
                         </div>
-                        <div style={{ fontSize: '2.5rem', filter: 'grayscale(1)' }}>☁️</div>
+                        <div className="integration-card-icon--disabled">☁️</div>
                     </div>
                 </div>
             </div>
 
-            <div className="card glass-morphism" style={{ marginTop: '3rem', animation: 'slideUp 0.6s ease-out both', animationDelay: '0.4s', borderLeft: '4px solid var(--accent)' }}>
-                <h3 style={{ fontSize: '1.5rem', marginBottom: '2rem' }}>The Intelligence Edge</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2.5rem' }}>
+            <div className="card glass-morphism intelligence-card" style={{ animation: 'slideUp 0.6s ease-out both', animationDelay: '0.4s' }}>
+                <h3 className="intelligence-card-title">The Intelligence Edge</h3>
+                <div className="intelligence-features-grid">
                     {[
                         {
                             title: "Proactive AI Briefings",
@@ -250,11 +222,11 @@ export default function IntegrationsPage() {
                         }
                     ].map((item, i) => (
                         <div key={i}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
-                                <span style={{ color: 'var(--primary)', fontSize: '1.2rem' }}>{item.icon}</span>
-                                <strong style={{ fontSize: '1.1rem' }}>{item.title}</strong>
+                            <div className="intelligence-feature-header">
+                                <span className="intelligence-feature-icon">{item.icon}</span>
+                                <strong className="intelligence-feature-title">{item.title}</strong>
                             </div>
-                            <p style={{ opacity: 0.6, fontSize: '0.9rem', lineHeight: '1.6' }}>{item.desc}</p>
+                            <p className="intelligence-feature-desc">{item.desc}</p>
                         </div>
                     ))}
                 </div>

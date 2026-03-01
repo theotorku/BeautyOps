@@ -20,7 +20,6 @@ export default function StoreVisits() {
         try {
             const res = await authenticatedFetch('/api/visits/process-transcript', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ transcript })
             });
 
@@ -49,7 +48,7 @@ export default function StoreVisits() {
     };
 
     return (
-        <div style={{ maxWidth: '1000px', animation: 'fadeIn 0.8s ease-out' }}>
+        <div className="page-container--narrow" style={{ maxWidth: '1000px' }}>
             <h1>Store Visit Intelligence</h1>
             <p className="page-subtitle">
                 Transform your raw field notes into strategic retail reports in seconds.
@@ -67,7 +66,7 @@ export default function StoreVisits() {
                     <button
                         onClick={handleProcess}
                         disabled={loading || !transcript}
-                        style={{ flex: 1, padding: '1rem' }}
+                        style={{ flex: 1 }}
                     >
                         {loading ? 'AI analyzing...' : 'Generate Intelligence Report'}
                     </button>

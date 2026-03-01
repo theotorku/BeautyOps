@@ -50,7 +50,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div style={{ animation: 'fadeIn 1s ease-out' }}>
+    <div className="page-fade-in">
       <h1>Beauty Command Center</h1>
       <p className="page-subtitle">
         Welcome back, AE. Your AI-optimized priority list is ready.
@@ -107,7 +107,7 @@ export default function Dashboard() {
           </div>
 
           {loadingEvents ? (
-            <div style={{ marginTop: '1.5rem', opacity: 0.5 }}>
+            <div className="events-loading">
               <p>Loading calendar events...</p>
             </div>
           ) : upcomingEvents.length > 0 ? (
@@ -158,7 +158,7 @@ export default function Dashboard() {
               </div>
               <h2 className="briefing-title">Sephora Times Square - Holiday Refresh</h2>
             </div>
-            <button onClick={() => router.push('/visits')} style={{ padding: '0.8rem 1.75rem', fontSize: '0.95rem' }}>Open Strategic Brief</button>
+            <button onClick={() => router.push('/visits')} className="btn-sm">Open Strategic Brief</button>
           </div>
           <div className="briefing-grid">
             <div className="briefing-stat">

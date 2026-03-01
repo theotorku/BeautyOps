@@ -22,7 +22,6 @@ export default function CalendarCallbackPage() {
         const error = searchParams.get('error');
         const provider = params.provider as string;
 
-        // Check for OAuth error
         if (error) {
             setStatus('error');
             setMessage(`Authorization failed: ${error}`);
@@ -30,7 +29,6 @@ export default function CalendarCallbackPage() {
             return;
         }
 
-        // Check for missing code or state
         if (!code || !state) {
             setStatus('error');
             setMessage('Missing authorization code or state parameter');
@@ -39,7 +37,6 @@ export default function CalendarCallbackPage() {
         }
 
         try {
-            // Exchange code for tokens via backend
             const response = await authenticatedFetch(
                 `/api/calendar/callback/${provider}?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`,
                 { method: 'POST' }
@@ -55,7 +52,6 @@ export default function CalendarCallbackPage() {
             setStatus('success');
             setMessage(`${data.message || 'Calendar connected successfully!'}`);
 
-            // Redirect back to integrations page after 2 seconds
             setTimeout(() => router.push('/integrations'), 2000);
 
         } catch (error: any) {
@@ -67,44 +63,26 @@ export default function CalendarCallbackPage() {
     };
 
     return (
-        <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minHeight: '60vh',
-            animation: 'fadeIn 0.5s ease-out'
-        }}>
-            <div className="card" style={{
-                maxWidth: '500px',
-                textAlign: 'center',
-                padding: '3rem'
-            }}>
+        <div className="callback-container">
+            <div className="card callback-card">
                 {status === 'loading' && (
                     <>
-                        <div style={{
-                            fontSize: '4rem',
-                            marginBottom: '1.5rem',
-                            animation: 'pulse 1.5s ease-in-out infinite'
-                        }}>
+                        <div className="callback-icon callback-icon--pulse">
                             📅
                         </div>
                         <h2 style={{ marginBottom: '1rem' }}>Connecting Calendar...</h2>
-                        <p style={{ opacity: 0.6 }}>Securely exchanging OAuth tokens</p>
+                        <p className="callback-message">Securely exchanging OAuth tokens</p>
                     </>
                 )}
 
                 {status === 'success' && (
                     <>
-                        <div style={{
-                            fontSize: '4rem',
-                            marginBottom: '1.5rem',
-                            animation: 'scaleIn 0.5s ease-out'
-                        }}>
+                        <div className="callback-icon callback-icon--scale">
                             ✅
                         </div>
-                        <h2 style={{ marginBottom: '1rem', color: 'var(--primary)' }}>Success!</h2>
-                        <p style={{ opacity: 0.8 }}>{message}</p>
-                        <p style={{ opacity: 0.5, fontSize: '0.9rem', marginTop: '1rem' }}>
+                        <h2 className="callback-title--success">Success!</h2>
+                        <p className="callback-message--success">{message}</p>
+                        <p className="callback-redirect-note">
                             Redirecting you back to integrations...
                         </p>
                     </>
@@ -112,44 +90,17 @@ export default function CalendarCallbackPage() {
 
                 {status === 'error' && (
                     <>
-                        <div style={{
-                            fontSize: '4rem',
-                            marginBottom: '1.5rem'
-                        }}>
+                        <div className="callback-icon">
                             ❌
                         </div>
-                        <h2 style={{ marginBottom: '1rem', color: '#ff6b6b' }}>Connection Failed</h2>
-                        <p style={{ opacity: 0.8 }}>{message}</p>
-                        <p style={{ opacity: 0.5, fontSize: '0.9rem', marginTop: '1rem' }}>
+                        <h2 className="callback-title--error">Connection Failed</h2>
+                        <p className="callback-message--success">{message}</p>
+                        <p className="callback-redirect-note">
                             Redirecting you back to try again...
                         </p>
                     </>
                 )}
             </div>
-
-            <style jsx>{`
-                @keyframes pulse {
-                    0%, 100% {
-                        transform: scale(1);
-                        opacity: 1;
-                    }
-                    50% {
-                        transform: scale(1.1);
-                        opacity: 0.8;
-                    }
-                }
-
-                @keyframes scaleIn {
-                    0% {
-                        transform: scale(0.5);
-                        opacity: 0;
-                    }
-                    100% {
-                        transform: scale(1);
-                        opacity: 1;
-                    }
-                }
-            `}</style>
         </div>
     );
 }

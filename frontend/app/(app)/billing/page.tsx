@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { API_URL } from '@/lib/config';
 import { createClient } from '@/lib/supabase/client';
 import { authenticatedFetch } from '@/lib/api';
 import toast from 'react-hot-toast';
@@ -31,17 +30,14 @@ export default function BillingPage() {
 
         setLoading(true);
         try {
-            // Fetch subscription
             const subRes = await authenticatedFetch(`/api/billing/subscription/${user.id}`);
             const subData = await subRes.json();
             setSubscription(subData.subscription);
 
-            // Fetch usage
             const usageRes = await authenticatedFetch(`/api/usage/stats?user_id=${user.id}`);
             const usageData = await usageRes.json();
             setUsage(usageData);
 
-            // Fetch invoices
             const invoicesRes = await authenticatedFetch(`/api/billing/invoices/${user.id}`);
             const invoicesData = await invoicesRes.json();
             setInvoices(invoicesData.invoices || []);
@@ -130,9 +126,9 @@ export default function BillingPage() {
 
     if (loading) {
         return (
-            <div style={{ animation: 'fadeIn 0.8s ease-out' }}>
+            <div className="page-fade-in">
                 <h1>Billing & Subscription</h1>
-                <p style={{ opacity: 0.6, marginBottom: '2rem' }}>
+                <p className="page-subtitle" style={{ marginBottom: '2rem' }}>
                     Loading your billing information...
                 </p>
                 <CardSkeleton count={2} />
@@ -141,9 +137,9 @@ export default function BillingPage() {
     }
 
     return (
-        <div style={{ animation: 'fadeIn 0.8s ease-out' }}>
+        <div className="page-fade-in">
             <h1>Billing & Subscription</h1>
-            <p style={{ opacity: 0.6, marginBottom: '2rem' }}>
+            <p className="page-subtitle" style={{ marginBottom: '2rem' }}>
                 Manage your subscription, usage, and payment methods.
             </p>
 
@@ -165,15 +161,15 @@ export default function BillingPage() {
                 <div>
                     {subscription ? (
                         <div className="card" style={{ marginBottom: '2rem', animation: 'slideUp 0.6s ease-out' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                            <div className="subscription-header">
                                 <div>
-                                    <h2 style={{ fontSize: '1.75rem', marginBottom: '0.5rem', fontWeight: '800' }}>
+                                    <h2 className="subscription-plan-name">
                                         Current Plan: {subscription.subscription_tier.replace('_', ' ').toUpperCase()}
                                     </h2>
-                                    <p style={{ opacity: 0.6, fontSize: '1rem', marginBottom: '0.5rem' }}>
-                                        Status: <span style={{ color: subscription.status === 'active' ? '#4ade80' : '#f87171', fontWeight: '600' }}>{subscription.status}</span>
+                                    <p className="subscription-detail">
+                                        Status: <span className={subscription.status === 'active' ? 'status-active' : 'status-canceled'}>{subscription.status}</span>
                                     </p>
-                                    <p style={{ opacity: 0.6, fontSize: '1rem' }}>
+                                    <p className="subscription-detail">
                                         Billing: {subscription.billing_interval}
                                     </p>
                                     <p style={{ opacity: 0.5, fontSize: '0.9rem', marginTop: '0.75rem' }}>
@@ -183,12 +179,6 @@ export default function BillingPage() {
                                 <button
                                     onClick={handleManageSubscription}
                                     disabled={actionLoading}
-                                    style={{
-                                        background: 'var(--primary-gradient)',
-                                        padding: '1rem 2rem',
-                                        fontSize: '1rem',
-                                        fontWeight: '700'
-                                    }}
                                 >
                                     {actionLoading ? 'Loading...' : 'Manage Subscription'}
                                 </button>
@@ -197,62 +187,27 @@ export default function BillingPage() {
                     ) : (
                         <>
                             {/* Billing Period Toggle */}
-                            <div style={{
-                                display: 'flex',
-                                justifyContent: 'center',
-                                gap: '0',
-                                marginBottom: '3rem',
-                                padding: '0.5rem',
-                                background: 'var(--secondary)',
-                                borderRadius: '12px',
-                                width: 'fit-content',
-                                margin: '0 auto 3rem',
-                                border: '1px solid var(--glass-border)'
-                            }}>
+                            <div className="billing-period-toggle">
                                 <button
                                     onClick={() => setBillingPeriod('monthly')}
+                                    className="billing-period-btn"
                                     style={{
                                         background: billingPeriod === 'monthly' ? 'var(--primary-gradient)' : 'transparent',
-                                        color: billingPeriod === 'monthly' ? '#000' : 'var(--foreground)',
-                                        padding: '0.75rem 2rem',
-                                        border: 'none',
-                                        borderRadius: '8px',
-                                        fontSize: '1rem',
-                                        fontWeight: '700',
-                                        cursor: 'pointer',
-                                        transition: 'var(--transition)'
+                                        color: billingPeriod === 'monthly' ? '#000' : 'var(--foreground)'
                                     }}
                                 >
                                     Monthly
                                 </button>
                                 <button
                                     onClick={() => setBillingPeriod('yearly')}
+                                    className="billing-period-btn"
                                     style={{
                                         background: billingPeriod === 'yearly' ? 'var(--primary-gradient)' : 'transparent',
-                                        color: billingPeriod === 'yearly' ? '#000' : 'var(--foreground)',
-                                        padding: '0.75rem 2rem',
-                                        border: 'none',
-                                        borderRadius: '8px',
-                                        fontSize: '1rem',
-                                        fontWeight: '700',
-                                        cursor: 'pointer',
-                                        transition: 'var(--transition)',
-                                        position: 'relative'
+                                        color: billingPeriod === 'yearly' ? '#000' : 'var(--foreground)'
                                     }}
                                 >
                                     Yearly
-                                    <span style={{
-                                        fontSize: '0.7rem',
-                                        position: 'absolute',
-                                        top: '-10px',
-                                        right: '-10px',
-                                        background: '#4ade80',
-                                        color: '#000',
-                                        padding: '3px 8px',
-                                        borderRadius: '6px',
-                                        fontWeight: '900',
-                                        letterSpacing: '0.5px'
-                                    }}>SAVE 20%</span>
+                                    <span className="billing-save-badge">SAVE 20%</span>
                                 </button>
                             </div>
 
@@ -265,59 +220,27 @@ export default function BillingPage() {
                                     return (
                                         <div
                                             key={key}
-                                            className="card"
-                                            style={{
-                                                border: tier.popular ? '2px solid var(--primary)' : '1px solid var(--glass-border)',
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                position: 'relative',
-                                                background: tier.popular ? 'linear-gradient(180deg, rgba(229, 185, 196, 0.05) 0%, rgba(15, 15, 19, 1) 100%)' : 'var(--secondary)'
-                                            }}
+                                            className={`card plan-card ${tier.popular ? 'plan-card--popular' : ''}`}
                                         >
                                             {tier.popular && (
-                                                <span style={{
-                                                    position: 'absolute',
-                                                    top: '-14px',
-                                                    left: '50%',
-                                                    transform: 'translateX(-50%)',
-                                                    background: 'var(--primary-gradient)',
-                                                    color: '#000',
-                                                    padding: '0.4rem 1.25rem',
-                                                    borderRadius: '20px',
-                                                    fontSize: '0.75rem',
-                                                    fontWeight: '900',
-                                                    boxShadow: '0 4px 12px rgba(229, 185, 196, 0.4)',
-                                                    letterSpacing: '1px'
-                                                }}>
+                                                <span className="plan-recommended-badge">
                                                     RECOMMENDED
                                                 </span>
                                             )}
-                                            <h3 style={{ fontSize: '1.5rem', marginBottom: '0.5rem', fontWeight: '800' }}>{tier.name}</h3>
-                                            <div style={{
-                                                fontSize: '3rem',
-                                                fontWeight: '900',
-                                                marginBottom: '1rem',
-                                                background: tier.popular ? 'var(--primary-gradient)' : 'none',
-                                                WebkitBackgroundClip: tier.popular ? 'text' : 'none',
-                                                WebkitTextFillColor: tier.popular ? 'transparent' : 'inherit'
-                                            }}>
+                                            <h3 className="plan-name">{tier.name}</h3>
+                                            <div className={`plan-price ${tier.popular ? 'plan-price--gradient' : ''}`}>
                                                 ${monthlyPrice}
-                                                <span style={{
-                                                    fontSize: '1.1rem',
-                                                    opacity: 0.4,
-                                                    fontWeight: '400',
-                                                    WebkitTextFillColor: 'var(--foreground)'
-                                                }}>/mo</span>
+                                                <span className="plan-price-period">/mo</span>
                                             </div>
                                             {billingPeriod === 'yearly' && (
-                                                <p style={{ fontSize: '0.85rem', opacity: 0.6, marginBottom: '1.5rem' }}>
+                                                <p className="plan-billing-note">
                                                     Billed ${price.price}/year
                                                 </p>
                                             )}
-                                            <ul style={{ listStyle: 'none', marginBottom: '1.5rem', flex: 1 }}>
+                                            <ul className="plan-features-list">
                                                 {tier.features.map((feature, i) => (
-                                                    <li key={i} style={{ marginBottom: '0.85rem', display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
-                                                        <span style={{ color: 'var(--primary)', fontWeight: 'bold', fontSize: '1.1rem' }}>✓</span>
+                                                    <li key={i} className="plan-feature-item">
+                                                        <span className="plan-feature-check">✓</span>
                                                         <span style={{ fontSize: '0.95rem', opacity: 0.9 }}>{feature}</span>
                                                     </li>
                                                 ))}
@@ -325,16 +248,7 @@ export default function BillingPage() {
                                             <button
                                                 onClick={() => handleSubscribe(price.priceId)}
                                                 disabled={actionLoading}
-                                                style={{
-                                                    width: '100%',
-                                                    background: tier.popular ? 'var(--primary-gradient)' : 'rgba(255,255,255,0.05)',
-                                                    border: tier.popular ? 'none' : '1px solid var(--glass-border)',
-                                                    color: tier.popular ? '#000' : 'var(--foreground)',
-                                                    padding: '1.1rem',
-                                                    fontSize: '1rem',
-                                                    fontWeight: '700',
-                                                    boxShadow: tier.popular ? '0 8px 24px rgba(229, 185, 196, 0.3)' : 'none'
-                                                }}
+                                                className={`btn-subscribe ${tier.popular ? 'btn-subscribe--primary' : 'btn-subscribe--ghost'}`}
                                             >
                                                 {actionLoading ? 'Loading...' : 'Subscribe'}
                                             </button>
@@ -350,57 +264,43 @@ export default function BillingPage() {
             {/* Usage Tab */}
             {activeTab === 'usage' && usage && (
                 <div className="card" style={{ animation: 'slideUp 0.6s ease-out' }}>
-                    <h2 style={{ fontSize: '1.75rem', marginBottom: '2rem', fontWeight: '800' }}>Current Usage</h2>
+                    <h2 className="billing-section-heading">Current Usage</h2>
 
-                    <div style={{ marginBottom: '2.5rem' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', alignItems: 'center' }}>
-                            <span style={{ fontSize: '1.1rem' }}>AI POS Analysis Credits</span>
-                            <span style={{ fontWeight: '700', fontSize: '1.2rem', background: 'var(--primary-gradient)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                    <div className="usage-meter-group">
+                        <div className="usage-meter-header">
+                            <span className="usage-meter-label">AI POS Analysis Credits</span>
+                            <span className="usage-meter-value">
                                 {usage.pos_credits_used} / {usage.pos_credits_limit === -1 ? '∞' : usage.pos_credits_limit}
                             </span>
                         </div>
-                        <div style={{
-                            background: 'rgba(255,255,255,0.05)',
-                            height: '14px',
-                            borderRadius: '8px',
-                            overflow: 'hidden',
-                            border: '1px solid var(--glass-border)'
-                        }}>
-                            <div style={{
-                                background: 'var(--primary-gradient)',
-                                width: usage.pos_credits_limit === -1 ? '100%' : `${Math.min((usage.pos_credits_used / usage.pos_credits_limit) * 100, 100)}%`,
-                                height: '100%',
-                                transition: 'width 0.5s ease-out',
-                                boxShadow: '0 0 12px rgba(229, 185, 196, 0.4)'
-                            }}></div>
+                        <div className="usage-meter-bar">
+                            <div
+                                className="usage-meter-fill"
+                                style={{
+                                    width: usage.pos_credits_limit === -1 ? '100%' : `${Math.min((usage.pos_credits_used / usage.pos_credits_limit) * 100, 100)}%`
+                                }}
+                            ></div>
                         </div>
                     </div>
 
-                    <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', alignItems: 'center' }}>
-                            <span style={{ fontSize: '1.1rem' }}>Proactive Briefings</span>
-                            <span style={{ fontWeight: '700', fontSize: '1.2rem', background: 'var(--primary-gradient)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                    <div className="usage-meter-group">
+                        <div className="usage-meter-header">
+                            <span className="usage-meter-label">Proactive Briefings</span>
+                            <span className="usage-meter-value">
                                 {usage.briefings_used || 0} / {usage.briefings_limit === -1 ? '∞' : usage.briefings_limit || 0}
                             </span>
                         </div>
-                        <div style={{
-                            background: 'rgba(255,255,255,0.05)',
-                            height: '14px',
-                            borderRadius: '8px',
-                            overflow: 'hidden',
-                            border: '1px solid var(--glass-border)'
-                        }}>
-                            <div style={{
-                                background: 'var(--primary-gradient)',
-                                width: usage.briefings_limit === -1 ? '100%' : `${Math.min(((usage.briefings_used || 0) / (usage.briefings_limit || 1)) * 100, 100)}%`,
-                                height: '100%',
-                                transition: 'width 0.5s ease-out',
-                                boxShadow: '0 0 12px rgba(229, 185, 196, 0.4)'
-                            }}></div>
+                        <div className="usage-meter-bar">
+                            <div
+                                className="usage-meter-fill"
+                                style={{
+                                    width: usage.briefings_limit === -1 ? '100%' : `${Math.min(((usage.briefings_used || 0) / (usage.briefings_limit || 1)) * 100, 100)}%`
+                                }}
+                            ></div>
                         </div>
                     </div>
 
-                    <p style={{ fontSize: '0.9rem', opacity: 0.5, marginTop: '2rem', textAlign: 'center' }}>
+                    <p className="usage-reset-note">
                         Usage resets on your billing cycle date
                     </p>
                 </div>
@@ -408,26 +308,20 @@ export default function BillingPage() {
 
             {/* Payment Methods Tab */}
             {activeTab === 'payment' && (
-                <div className="card" style={{ animation: 'slideUp 0.6s ease-out', textAlign: 'center' }}>
-                    <h2 style={{ fontSize: '1.75rem', marginBottom: '1.5rem', fontWeight: '800' }}>Payment Methods</h2>
-                    <p style={{ opacity: 0.6, marginBottom: '2rem', fontSize: '1.05rem' }}>
+                <div className="card text-center" style={{ animation: 'slideUp 0.6s ease-out' }}>
+                    <h2 className="billing-section-heading">Payment Methods</h2>
+                    <p className="page-subtitle" style={{ marginBottom: '2rem' }}>
                         Manage your payment methods securely through the Stripe Customer Portal
                     </p>
                     <button
                         onClick={handleManageSubscription}
                         disabled={actionLoading || !subscription}
-                        style={{
-                            background: subscription ? 'var(--primary-gradient)' : 'rgba(255,255,255,0.05)',
-                            padding: '1.1rem 2.5rem',
-                            fontSize: '1rem',
-                            fontWeight: '700',
-                            margin: '0 auto'
-                        }}
+                        style={{ margin: '0 auto' }}
                     >
                         {actionLoading ? 'Loading...' : 'Manage Payment Methods'}
                     </button>
                     {!subscription && (
-                        <p style={{ fontSize: '0.9rem', opacity: 0.5, marginTop: '1.5rem' }}>
+                        <p className="billing-helper-note">
                             Subscribe to a plan first to manage payment methods
                         </p>
                     )}
@@ -437,12 +331,12 @@ export default function BillingPage() {
             {/* Billing History Tab */}
             {activeTab === 'history' && (
                 <div className="card" style={{ animation: 'slideUp 0.6s ease-out' }}>
-                    <h2 style={{ fontSize: '1.75rem', marginBottom: '2rem', fontWeight: '800' }}>Billing History</h2>
+                    <h2 className="billing-section-heading">Billing History</h2>
 
                     {invoices.length === 0 ? (
                         <NoInvoicesState />
                     ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        <div className="invoice-list">
                             {invoices.map((invoice) => (
                                 <div key={invoice.id} className="invoice-item">
                                     <div>

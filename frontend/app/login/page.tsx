@@ -39,6 +39,7 @@ export default function LoginPage() {
                     <Link href="/" className="auth-logo">✨ BeautyOps AI</Link>
                     <h1>Welcome Back</h1>
                     <p>Sign in to your account</p>
+                    <p className="auth-serif-accent">Where beauty meets intelligence.</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="auth-form">

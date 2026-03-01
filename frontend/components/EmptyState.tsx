@@ -20,75 +20,24 @@ export default function EmptyState({
     onAction,
 }: EmptyStateProps) {
     return (
-        <div
-            className="empty-state"
-            style={{
-                textAlign: 'center',
-                padding: '4rem 2rem',
-                background: 'rgba(255,255,255,0.02)',
-                borderRadius: '24px',
-                border: '1px dashed var(--glass-border)',
-            }}
-        >
-            <div
-                style={{
-                    fontSize: '4rem',
-                    marginBottom: '1.5rem',
-                    opacity: 0.5,
-                }}
-            >
+        <div className="empty-state">
+            <div className="empty-state-icon">
                 {icon}
             </div>
-            <h3
-                style={{
-                    fontSize: '1.5rem',
-                    fontWeight: '700',
-                    marginBottom: '0.75rem',
-                    color: 'var(--foreground)',
-                }}
-            >
+            <h3 className="empty-state-title">
                 {title}
             </h3>
-            <p
-                style={{
-                    opacity: 0.6,
-                    fontSize: '1rem',
-                    marginBottom: '2rem',
-                    maxWidth: '400px',
-                    margin: '0 auto 2rem',
-                }}
-            >
+            <p className="empty-state-description">
                 {description}
             </p>
             {(actionLabel && (actionHref || onAction)) && (
                 <>
                     {actionHref ? (
-                        <Link
-                            href={actionHref}
-                            style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '0.5rem',
-                                background: 'var(--primary-gradient)',
-                                color: '#000',
-                                padding: '1rem 2rem',
-                                borderRadius: '12px',
-                                fontWeight: '700',
-                                textDecoration: 'none',
-                                transition: 'var(--transition)',
-                            }}
-                        >
+                        <Link href={actionHref} className="empty-state-action">
                             {actionLabel} →
                         </Link>
                     ) : (
-                        <button
-                            onClick={onAction}
-                            style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '0.5rem',
-                            }}
-                        >
+                        <button onClick={onAction}>
                             {actionLabel}
                         </button>
                     )}
@@ -98,7 +47,6 @@ export default function EmptyState({
     );
 }
 
-// Specific empty states for common scenarios
 export function NoInvoicesState() {
     return (
         <EmptyState

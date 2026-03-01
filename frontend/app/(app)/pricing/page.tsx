@@ -47,66 +47,44 @@ export default function PricingPage() {
     ];
 
     return (
-        <div style={{ maxWidth: '1200px', animation: 'fadeIn 0.8s ease-out' }}>
-            <h1 style={{ textAlign: 'center', marginBottom: '1.5rem' }}>Investment Tiers</h1>
-            <p style={{ textAlign: 'center', opacity: 0.6, marginBottom: '4rem', fontSize: '1.1rem' }}>
+        <div className="page-container--wide">
+            <h1 className="pricing-page-header">Investment Tiers</h1>
+            <p className="pricing-page-subtitle">
                 Choose the intelligence level that matches your field operations.
             </p>
 
             <div className="grid">
                 {tiers.map((tier, idx) => (
-                    <div key={idx} className="card" style={{
-                        display: 'flex',
-                        flexDirection: 'column',
+                    <div key={idx} className={`card plan-card ${tier.popular ? 'plan-card--popular' : ''}`} style={{
                         gap: '2rem',
-                        border: tier.popular ? '2px solid var(--primary)' : '1px solid var(--glass-border)',
-                        position: 'relative',
                         padding: '2.5rem',
                         animation: 'slideUp 0.6s ease-out both',
-                        animationDelay: `${idx * 0.15}s`,
-                        background: tier.popular ? 'linear-gradient(180deg, rgba(229, 185, 196, 0.05) 0%, rgba(15, 15, 19, 1) 100%)' : 'var(--secondary)'
+                        animationDelay: `${idx * 0.15}s`
                     }}>
                         {tier.popular && (
-                            <span style={{
-                                position: 'absolute',
-                                top: '-14px',
-                                left: '50%',
-                                transform: 'translateX(-50%)',
-                                background: 'var(--primary-gradient)',
-                                color: '#000',
-                                padding: '0.4rem 1.25rem',
-                                borderRadius: '20px',
-                                fontSize: '0.75rem',
-                                fontWeight: '900',
-                                boxShadow: '0 4px 12px rgba(229, 185, 196, 0.4)',
-                                letterSpacing: '1px'
-                            }}>
+                            <span className="plan-recommended-badge">
                                 RECOMMENDED
                             </span>
                         )}
                         <div>
-                            <h2 style={{ fontSize: '1.75rem', fontWeight: '800' }}>{tier.name}</h2>
-                            <p style={{ opacity: 0.5, fontSize: '0.95rem', marginTop: '0.75rem' }}>{tier.description}</p>
+                            <h2 className="plan-name" style={{ fontSize: '1.75rem' }}>{tier.name}</h2>
+                            <p className="plan-description">{tier.description}</p>
                         </div>
-                        <div style={{ fontSize: '3.5rem', fontWeight: '900', background: tier.popular ? 'var(--primary-gradient)' : 'none', WebkitBackgroundClip: tier.popular ? 'text' : 'none', WebkitTextFillColor: tier.popular ? 'transparent' : 'inherit' }}>
-                            {tier.price}<span style={{ fontSize: '1.1rem', fontWeight: '400', opacity: 0.4, WebkitTextFillColor: 'var(--foreground)' }}>/mo</span>
+                        <div className={`plan-price ${tier.popular ? 'plan-price--gradient' : ''}`} style={{ fontSize: '3.5rem' }}>
+                            {tier.price}<span className="plan-price-period">/mo</span>
                         </div>
-                        <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
+                        <ul className="plan-features-list" style={{ gap: '1.1rem', display: 'flex', flexDirection: 'column' }}>
                             {tier.features.map((feature, i) => (
-                                <li key={i} style={{ fontSize: '1rem', opacity: 0.9, display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-                                    <span style={{ color: 'var(--primary)', fontWeight: 'bold' }}>✓</span> {feature}
+                                <li key={i} className="plan-feature-item">
+                                    <span className="plan-feature-check">✓</span> {feature}
                                 </li>
                             ))}
                         </ul>
-                        <button style={{
-                            marginTop: 'auto',
-                            background: tier.current ? 'rgba(255,255,255,0.03)' : 'var(--primary-gradient)',
-                            color: tier.current ? 'var(--foreground)' : '#000',
-                            border: tier.current ? '1px solid var(--glass-border)' : 'none',
-                            padding: '1.1rem',
-                            fontSize: '1rem',
-                            boxShadow: tier.current ? 'none' : '0 8px 24px rgba(229, 185, 196, 0.3)'
-                        }} disabled={tier.current}>
+                        <button
+                            className={`btn-subscribe ${tier.current ? 'btn-subscribe--ghost' : 'btn-subscribe--primary'}`}
+                            style={{ marginTop: 'auto' }}
+                            disabled={tier.current}
+                        >
                             {tier.button}
                         </button>
                     </div>
